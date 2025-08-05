@@ -1,0 +1,53 @@
+{% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+{% load custom_perms %} {# Add this line #}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card border-light shadow-sm">
+            <div class="card-header">
+                <h3 class="h3">Update Role</h3>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'update-role' role.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label for="name">Role Name</label>
+                                <input class="form-control" id="name" name="name" type="text" value="{{ role.name }}" required>
+                            </div>
+                        </div>
+                         <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <label for="description">Description (Optional)</label>
+                                <input class="form-control" id="description" name="description" type="text" value="{{ role.description|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="form-group">
+                                <label for="permissions">Assign Permissions</label>
+                                <select class="form-control" id="permissions" name="permissions" multiple size="8">
+                                    {% for permission in permissions %}
+                                        <option value="{{ permission.id }}" {% if permission.id in assigned_permissions %}selected{% endif %}>
+                                            {{ permission.name }} ({{ permission.codename }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Hold down "Control" (or "Command" on a Mac) to select more than one.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Update Role</button>
+                        <a href="{% url 'read-roles' %}" class="btn btn-gray-200">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

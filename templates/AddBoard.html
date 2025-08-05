@@ -1,0 +1,66 @@
+{% extends 'OrgDashboard.html' %}
+{% block dashboard_content %} 
+<div class="row align-items-center d-flex justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card border-light shadow-sm components-section rounded-3 p-4">
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h3 class="h3 text-center mb-4">Add Board</h3>
+                    </div>
+                    <div class="col-12 d-flex justify-content-center mb-4">
+                        <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_ihsy8p2a.json"
+                            background="transparent" speed="1" style="width: 300px; height: 250px;" loop autoplay>
+                        </lottie-player>
+                    </div>
+                    <div class="col-12">
+                        <form action="/create-board" method="POST">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <div class="form-group mb-3">
+                                    <label class="h6 form-label" for="boardName">Board Name:</label>
+                                    <input type="text" name="b_name" class="form-control" id="boardName" placeholder="Name of Board" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Add</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %} {# CHANGE THIS LINE #}
+<div class="row align-items-center d-flex  justify-content-center">
+    <div class="col-12 mb-4">
+        <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
+            <div class="card-body align-items-center d-flex justify-content-center">
+                <div class="row mb-4">
+                    <div class="col-lg-12 col-sm-16">
+                        <h3 class="h3 text-center">Add Board</h3>
+                    </div>
+                    <center>
+                        <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_ihsy8p2a.json"
+                            background="transparent" speed="1" style="width: 400px; height: 300px;" loop autoplay>
+                        </lottie-player>
+                    </center>
+                    <div class="card-body">
+                        <form action="/create-board" method="POST">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <div class="form-group">
+                                    <label class="h6" for="exampleFormControlTextarea1">Board Name:</label>
+
+                                    <input type="text" name="b_name" class="form-control" placeholder="Name of Board" required>
+                                </div>
+                                <input type="submit" class="btn btn-primary" value="Add">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {# CHANGE THIS LINE #} {% endcomment %}

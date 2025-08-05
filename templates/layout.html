@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Remote Desk</title>
+    {% load static %}
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+
+    <!-- Sweet Alert 2 CSS -->
+    <link type="text/css" rel="stylesheet" href="{% static 'html/vendor/sweetalert2/dist/sweetalert2.min.css' %}">
+    </link>
+
+    <!-- Notyf CSS -->
+    <link type="text/css" rel="stylesheet" href="{% static 'html/vendor/notyf/notyf.min.css' %}">
+    </link>
+
+    <!-- Volt CSS (Ensure this theme is compatible with Bootstrap 5, or find an updated version) -->
+    <link type="text/css" rel="stylesheet" href="{% static 'html/css/volt.css' %}">
+    </link>
+
+    <!-- jQuery (Bootstrap 5 doesn't require jQuery, but existing code might rely on it heavily) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <style>
+    :root {
+        --navbar-height: 56px; /* Standard Bootstrap navbar height */
+        --sidebar-width-desktop: 450px; /* Adjusted width for desktop sidebar - WAS 250px */
+        --sidebar-max-width-mobile: 300px; /* Max width for mobile sidebar */
+        --sidebar-brand-height: 70px; /* Approximate height for the sidebar brand area */
+    }
+
+    /* Make body a flex container to push footer to bottom */
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Minimum height of the viewport */
+        background-color: white;
+        overflow-x: hidden; /* Prevent horizontal scroll from hidden sidebar */
+    }
+
+    /* Main application header (main navbar) */
+    .header-global {
+        position: sticky; /* Make it sticky so it stays at top when scrolling, but moves with content if body itself scrolls */
+        top: 0;
+        width: 100%;
+        z-index: 1060; /* Higher than messages and sidebar */
+        background-color: white; /* Ensure background to cover content when sticky */
+        box-shadow: 0 2px 4px rgba(0,0,0,.05); /* Optional: subtle shadow */
+    }
+
+    /* Messages container - fixed just below the main navbar */
+    .messages-container {
+        position: sticky; /* Sticky here to stick below the main navbar, moves with scroll if main content area overflows viewport */
+        top: var(--navbar-height); /* Sticks right below the main navbar */
+        left: 0;
+        width: 100%;
+        z-index: 1050; /* Below main fixed navbar, above sidebar */
+    }
+    .messages-container .alert {
+        margin-bottom: 0;
+        border-radius: 0;
+    }
+
+    /* Page wrapper for sidebar and main content */
+    .page-wrapper {
+        display: flex; /* Flex container for sidebar and main content */
+        flex-grow: 1; /* Allows it to take up all remaining vertical space in the body */
+        width: 100%; /* Important for proper flex behavior in some scenarios */
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+        position: fixed; /* Fixed position relative to viewport for mobile */
+        top: 0; /* Starts from the very top for mobile, covered by main navbar normally */
+        bottom: 0; /* Extends to the bottom of the viewport */
+        left: 0; /* Aligned to the left edge */
+        z-index: 1020; /* Below main fixed navbar, above main content area */
+        background-color: white; /* Changed from #343a40; */
+        color: #212529; /* Changed from #fff, equivalent to Bootstrap's text-dark */
+        width: 75vw; /* Default width for mobile (percentage of viewport width) */
+        max-width: var(--sidebar-max-width-mobile); /* Max width for mobile sidebar */
+        transform: translateX(-100%); /* Hidden off-screen by default on mobile */
+        transition: transform 0.3s ease-in-out; /* Smooth slide transition */
+        display: flex; /* Make sidebar itself a flex container */
+        flex-direction: column; /* Stack its direct children vertically */
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15); /* Added shadow for visual separation */
+    }
+
+    /* Mobile specific sidebar header / brand area */
+    .sidebar .sidebar-mobile-header {
+    height: calc(100vh - var(--navbar-height));
+        display: flex;
+        align-items: center;
+        padding: 0 1rem; /* Adjust padding as needed */
+        background-color: white; /* White background to match main navbar */
+        border-bottom: 1px solid rgba(0,0,0,.05); /* Optional: subtle border */
+        color: #343a40; /* Dark text for visibility on white background */
+        font-weight: bold;
+    }
+    .sidebar .sidebar-mobile-header .lottie-player {
+        margin-right: 0.5rem; /* Space between logo and text */
+    }
+
+
+    /* Ensure the inner content of the sidebar takes full height and manages its own overflow */
+    .sidebar .sidebar-inner {
+        flex-grow: 1; /* Allows the inner content to take up available vertical space */
+        overflow-y: auto; /* Enables scrolling for the sidebar content */
+        /* No padding-top here as the header handles top space */
+        padding: 1rem; /* General padding for menu items */
+        padding-top: 0; /* Remove top padding if header is within sidebar-inner */
+        padding-bottom: 20px; /* Add some bottom padding as well */
+    }
+
+    /* Bootstrap's 'show' class to make sidebar visible on mobile */
+    .sidebar.show {
+        transform: translateX(0%);
+    }
+
+    /* Overlay backdrop when mobile sidebar is open */
+    .sidebar-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1010; /* Below sidebar, above main content area */
+        display: none; /* Hidden by default */
+    }
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus,
+.sidebar .nav-link:active,
+.sidebar .nav-link.active {
+    color: #212529 !important;
+    background-color: transparent !important;  /* Remove hover background */
+    border-radius: 0 !important;               /* Remove rounding */
+}
+
+    /* Show backdrop when sidebar is shown */
+    .sidebar.show + .sidebar-backdrop {
+        display: block;
+    }
+
+    /* Prevent body scrolling when mobile sidebar is open */
+    body.sidebar-open-mobile {
+        overflow: hidden;
+    }
+
+    /* Main content area wrapper for dashboard pages */
+    .main-content-area {
+        flex-grow: 1; /* Allows it to take up remaining horizontal space in a flex container */
+        padding: 1.5rem; /* Default padding for all sides */
+        min-height: calc(100vh - var(--navbar-height)); /* Ensures it takes up remaining vertical space below main navbar */
+        overflow-y: auto; /* Enable scrolling for main content if it overflows */
+    }
+
+    /* Desktop styles */
+    @media (min-width: 768px) {
+        .sidebar {
+            position: sticky; /* Change to sticky so it respects parent's flow and scrolls with the page when content is short */
+            top: var(--navbar-height); /* Sticks below the main navbar */
+            width: var(--sidebar-width-desktop); /* Fixed width for desktop */
+            transform: translateX(0%); /* Always visible on desktop */
+            display: flex !important; /* Override Bootstrap's 'collapse' display: none */
+            height: calc(100vh - var(--navbar-height)); /* Ensure full height from top to bottom */
+        }
+        
+        /* Hide mobile header in sidebar on desktop */
+        .sidebar .sidebar-mobile-header {
+            display: none;
+        }
+
+       
+        
+        .sidebar-backdrop {
+            display: none !important; /* Ensure backdrop is hidden on desktop */
+        }
+
+        /* Hide the mobile navbar toggler from the main _navbar.html on desktop */
+        .header-global .navbar-toggler {
+            display: none !important;
+        }
+
+        /* Adjust body padding top if header is sticky instead of fixed */
+        body {
+            padding-top: 0; /* Remove padding-top from body as sticky navbar doesn't take space out of flow */
+        }
+    }
+
+    /* Styles for pages without dashboard layout (e.g., login, register, 404, contact, faq) */
+    .full-width-content-area {
+        flex-grow: 1;
+        width: 100%;
+        padding: 1.5rem; /* Apply standard padding */
+    }
+
+    /* --- Custom styles for sidebar text and scrollbar --- */
+
+    /* Force all text and icons in the sidebar to be black by default */
+    .sidebar .nav-link,
+    .sidebar .nav-link .sidebar-icon,
+    .sidebar .nav-link .sidebar-text,
+    .sidebar .nav-item h2.h6,
+    .sidebar .user-card h2.h6,
+    .sidebar .user-card .btn.text-dark,
+    .sidebar .nav-link .link-arrow .fas,
+    .sidebar .multi-level .nav-item .nav-link .sidebar-text { /* Added more specific targets */
+        color: #212529 !important; /* Bootstrap's text-dark color, forced */
+    }
+
+
+   
+
+    /* Custom scrollbar styles for WebKit browsers (Chrome, Safari, Edge) */
+    .sidebar-inner::-webkit-scrollbar {
+        width: 2px; /* Make the scrollbar thinner - WAS 8px */
+    }
+
+    .sidebar-inner::-webkit-scrollbar-track {
+        background: transparent; /* Make the track transparent */
+    }
+
+    .sidebar-inner::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1); /* Light gray thumb */
+        border-radius: 10px; /* Rounded corners for the thumb */
+        border: 2px solid transparent; /* Creates padding around thumb */
+        background-clip: padding-box; /* Ensures border doesn't show background */
+    }
+
+    .sidebar-inner::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0, 0, 0, 0.3); /* Darker gray on hover */
+    }
+
+    /* Remove extra padding from the logout button in the sidebar to prevent visual misalignment */
+    .sidebar .nav-item .btn.btn-secondary {
+        padding-left: 1rem; /* Adjust as needed to align with other menu items */
+        padding-right: 1rem; /* Adjust as needed */
+        text-align: left; /* Align text to left */
+        width: 100%; /* Make button take full width */
+        justify-content: flex-start; /* Align content to start for d-flex */
+    }
+
+    .sidebar .nav-item .btn.btn-secondary .sidebar-icon {
+        margin-right: 0.5rem; /* Space between icon and text */
+        margin-top: 40px; /* Remove left margin to align with text */
+    }
+
+
+    /* Ensure copyright text in footer is black */
+    #sticky-footer p {
+        color: #212529 !important;
+    }
+
+</style>
+
+
+    {% block extra_head_css %}{% endblock %}
+    {% block head_scripts %}{% endblock %}
+</head>
+
+<body>
+    {% include 'includes/_navbar.html' %}
+
+    <div class="messages-container">
+        {% include 'includes/_messages.html' %}
+    </div>
+    {% csrf_token %} {# Added for global CSRF token access by JavaScript #}
+
+    {% if request.session.logged_in %}
+    <!-- Wrapper for the main content and sidebar (only rendered if logged in) -->
+    <div class="page-wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebarMenu" class="bg-white text-dark sidebar collapse d-md-block" data-simplebar>
+            {# New: Mobile header for the sidebar. Only visible on mobile. #}
+            <div class="sidebar-mobile-header d-md-none">
+                <a class="navbar-brand me-lg-5" href="{% if request.session.u_type == 'org' %}/org_index{% else %}/user_index{% endif %}">
+                    <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_wEt2nn.json" background="transparent"
+                        speed="1" style="width: 50px; height: 50px; display: inline-block; vertical-align: middle;" loop autoplay>
+                    </lottie-player>
+                    <span style="font-size:18px; display: inline-block; vertical-align: middle;">My Remote Desk</span>
+                </a>
+                <div class="collapse-close d-md-none ms-auto"> {# ms-auto pushes it to the right #}
+                    <a href="#sidebarMenu" class="fas fa-times" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
+                        aria-controls="sidebarMenu" aria-expanded="true" aria-label="Toggle navigation" style="color: #343a40;"></a>
+                </div>
+            </div>
+
+            <div class="sidebar-inner px-4 pt-6"> {# Moved px-4 pt-3 from parent to here #}
+                {% block sidebar_menu_content %}{% endblock %}
+            </div>
+        </nav>
+        
+        <!-- Sidebar Backdrop (for mobile) -->
+        <div class="sidebar-backdrop d-md-none"></div>
+
+        <!-- Main content area for dashboard pages -->
+        <div class="main-content-area"> {# Removed Bootstrap padding classes, handled by CSS #}
+            {% block dashboard_page_content %}{% endblock %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Content for non-dashboard pages (e.g., login, register, homepage, 404, 500, contact, faq) -->
+    <div class="full-width-content-area">
+        {% block page_content %}{% endblock %}
+    </div>
+    {% endif %}
+
+    {% block core_js %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="{% static 'html/vendor/onscreen/dist/on-screen.umd.min.js' %}"></script>
+    <script src="{% static 'html/vendor/nouislider/distribute/nouislider.min.js' %}"></script>
+    <script src="{% static 'html/vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js' %}"></script>
+    <script src="{% static 'html/vendor/chartist/dist/chartist.min.js' %}"></script>
+    <script src="{% static 'html/vendor/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js' %}"></script>
+    <script src="{% static 'html/vendor/vanillajs-datepicker/dist/js/datepicker-full.min.js' %}"></script>
+    <script src="{% static 'html/vendor/sweetalert2/dist/sweetalert2.all.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+    <script src="{% static 'html/vendor/notyf/notyf.min.js' %}"></script>
+    <script src="{% static 'html/vendor/simplebar/dist/simplebar.min.js' %}"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="{% static 'html/assets/js/volt.js' %}"></script>
+    {% endblock %}
+
+    {% block extra_body_scripts %}{% endblock %}
+
+    <footer id="sticky-footer" class="py-4 mt-5">
+        <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
+            <p class="font-weight-bold font-medium mb-0">Copyright © MyRemoteDesk
+                <span class="current-year">
+                    <script>document.write(new Date().getFullYear())</script>
+                </span>. All rights reserved.
+            </p>
+        </div><br>
+       
+    </footer>
+</body>
+</html>

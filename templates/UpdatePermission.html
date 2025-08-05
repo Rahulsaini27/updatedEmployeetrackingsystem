@@ -1,0 +1,45 @@
+{% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+{% load custom_perms %} {# Add this line #}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card border-light shadow-sm">
+            <div class="card-header">
+                <h3 class="h3">Update Permission</h3>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'update-permission' permission.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label for="codename">Codename</label>
+                                <input class="form-control" id="codename" name="codename" type="text" value="{{ permission.codename }}" required>
+                                <small class="form-text text-muted">A unique code, no spaces.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label for="name">Display Name</label>
+                                <input class="form-control" id="name" name="name" type="text" value="{{ permission.name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label for="description">Description (Optional)</label>
+                                <input class="form-control" id="description" name="description" type="text" value="{{ permission.description|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Update Permission</button>
+                        <a href="{% url 'read-permissions' %}" class="btn btn-gray-200">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
