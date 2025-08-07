@@ -1,33 +1,186 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+{% load custom_perms %} {# Add this line #}
 
-<div class="row">
-    <div class="col-12">
-        <div class="card border-light shadow-sm">
-            <div class="card-header">
+{# Custom styles for this page to align with the layout.html theme variables #}
+<style>
+    /* Global color variables from layout.html */
+    :root {
+        --primary-purple: #37474F; /* Dark Greyish Blue - main sidebar/navbar */
+        --text-light: #FFFFFF; /* White text on dark backgrounds */
+        --text-dark: #212121; /* Very Dark Grey - text on light backgrounds */
+        --bg-light-grey: #F8F9FA; /* Very Light Grey - overall page background */
+        --card-bg-white: #FFFFFF; /* White - background for cards/content blocks */
+        --secondary-grey-blue: #B0BEC5; /* A lighter shade of blue-grey for accents */
+    }
+
+    /* Card backgrounds should be white and text dark as per layout */
+    .card {
+        background-color: var(--card-bg-white) !important;
+        color: var(--text-dark);
+        border: 0 !important; /* Ensure no border */
+        border-radius: 0.5rem !important; /* Match rounded-4 */
+    }
+    .card-header {
+        background-color: transparent !important; /* No background for header */
+        border-bottom: 0 !important; /* No border for header */
+        padding-bottom: 0 !important; /* Remove bottom padding from header */
+    }
+    .card-header h3, h3, label {
+        color: var(--text-dark) !important; /* Ensure headings and labels are dark */
+        text-align: center; /* Center card headers */
+        margin-bottom: 1.5rem; /* Add spacing below headers */
+    }
+
+    /* Form control focus style to match theme primary-purple */
+    .form-control:focus {
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 0.25rem rgba(55, 71, 79, 0.25); /* Primary purple glow */
+    }
+    .form-text.text-muted {
+        color: rgba(0, 0, 0, 0.6) !important; /* Make muted text slightly darker for readability */
+    }
+
+    /* Buttons styling */
+    .btn-primary {
+        background-color: var(--primary-purple) !important; /* Dark Greyish Blue */
+        border-color: var(--primary-purple) !important;
+        color: var(--text-light) !important; /* White text */
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background-color: rgba(55, 71, 79, 0.85) !important; /* Slightly lighter primary-purple on hover */
+        border-color: rgba(55, 71, 79, 0.85) !important;
+    }
+
+    /* Custom button for 'Edit' action - using the new secondary grey-blue */
+    .btn-custom-edit {
+        background-color: var(--secondary-grey-blue) !important; /* Light blue-grey */
+        border-color: var(--secondary-grey-blue) !important;
+        color: var(--text-dark) !important; /* Dark text for contrast on light background */
+    }
+    .btn-custom-edit:hover, .btn-custom-edit:focus {
+        background-color: rgba(176, 190, 197, 0.9) !important; /* Slightly darker secondary-grey-blue on hover */
+        border-color: rgba(176, 190, 197, 0.9) !important;
+    }
+
+    /* Override btn-warning (if used directly for edit) for consistency */
+    .btn-warning {
+        background-color: var(--secondary-grey-blue) !important;
+        border-color: var(--secondary-grey-blue) !important;
+        color: var(--text-dark) !important;
+    }
+    .btn-warning:hover {
+        background-color: rgba(176, 190, 197, 0.9) !important;
+        border-color: rgba(176, 190, 197, 0.9) !important;
+    }
+
+    /* Table header styling for consistency with the dark theme */
+    #roles-table thead {
+        background-color: var(--primary-purple); /* Dark background */
+        color: var(--text-light); /* White text */
+    }
+    #roles-table th {
+        color: var(--text-light) !important; /* Ensure all th text is white */
+        border-bottom: 1px solid rgba(255,255,255,0.2) !important; /* Light border for separation */
+    }
+
+    /* Table row hover effect */
+    #roles-table tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.03); /* Subtle light grey hover */
+    }
+
+    /* Styling for permission badges */
+    .badge-permissions-list { /* Class for the container div for badges */
+        max-height: 100px;
+        overflow-y: auto;
+        padding: 5px;
+        border: 1px solid var(--bg-light-grey); /* Light border */
+        border-radius: 4px;
+        background-color: var(--bg-light-grey); /* Light background for the scrollable box */
+    }
+
+    .badge-custom { /* Custom class for individual permission badges */
+        display: inline-block;
+        margin: 2px 4px 2px 0;
+        padding: 0.3em 0.6em;
+        border-radius: 0.25rem;
+        font-size: 0.8em;
+        font-weight: 500;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        background-color: var(--secondary-grey-blue); /* Use secondary grey-blue */
+        color: var(--text-dark) !important; /* Dark text for readability */
+    }
+    .badge-none { /* For "None" badge */
+        background-color: rgba(55, 71, 79, 0.1); /* Very subtle transparent primary-purple */
+        color: var(--text-dark) !important;
+    }
+
+    /* DataTables specific elements styling */
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #ced4da; /* Bootstrap default border color */
+        padding: 0.375rem 0.75rem; /* Bootstrap default padding */
+        border-radius: 0.25rem; /* Bootstrap default border-radius */
+        background-color: var(--card-bg-white);
+        color: var(--text-dark);
+    }
+    .dataTables_wrapper .dataTables_filter label,
+    .dataTables_wrapper .dataTables_length label,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: var(--text-dark) !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background-color: var(--primary-purple) !important; /* Dark purple for active pagination */
+        border-color: var(--primary-purple) !important;
+        color: var(--text-light) !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+        color: rgba(0, 0, 0, 0.4) !important;
+    }
+    .dt-buttons .btn {
+        background-color: var(--primary-purple) !important; /* Dark purple buttons */
+        color: var(--text-light) !important; /* White text */
+        border-color: var(--primary-purple) !important;
+        margin-right: 0.25rem; /* Small spacing between buttons */
+    }
+    .dt-buttons .btn:hover {
+        background-color: rgba(55, 71, 79, 0.9) !important; /* Slightly darker on hover */
+        border-color: rgba(55, 71, 79, 0.9) !important;
+    }
+</style>
+
+<div class="row justify-content-center pt-4"> {# Added justify-content-center and pt-4 for overall page padding #}
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 p-4 mb-4"> {# Applied theme card styles #}
+            <div class="card-header"> {# Removed border-light shadow-sm, added padding classes #}
                 <h3 class="h3">Add New Role</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body pt-0"> {# Adjusted padding #}
                 <form action="{% url 'create-role' %}" method="POST">
                     {% csrf_token %}
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label for="name">Role Name</label>
+                                <label for="name" class="form-label">Role Name</label> {# Added form-label #}
                                 <input class="form-control" id="name" name="name" type="text" placeholder="e.g., Manager" required>
                             </div>
                         </div>
                          <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label for="description">Description (Optional)</label>
+                                <label for="description" class="form-label">Description (Optional)</label> {# Added form-label #}
                                 <input class="form-control" id="description" name="description" type="text" placeholder="e.g., Manages a team of developers">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12 mb-3">
+                        <div class="col-12 mb-4"> {# Increased mb for spacing before button #}
                             <div class="form-group">
-                                <label for="permissions">Assign Permissions</label>
+                                <label for="permissions" class="form-label">Assign Permissions</label> {# Added form-label #}
                                 <select class="form-control" id="permissions" name="permissions" multiple size="8">
                                     {% for permission in permissions %}
                                         <option value="{{ permission.id }}">{{ permission.name }} ({{ permission.codename }})</option>
@@ -37,8 +190,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Add Role</button>
+                    <div class="d-grid"> {# Full width button #}
+                        <button type="submit" class="btn btn-primary btn-lg">Add Role</button> {# Added btn-lg #}
                     </div>
                 </form>
             </div>
@@ -46,60 +199,58 @@
     </div>
 </div>
 
-<div class="row mt-4">
+<div class="row justify-content-center mt-4"> {# Added justify-content-center #}
     <div class="col-12">
-        <div class="card border-light shadow-sm">
+        <div class="card shadow rounded-4 p-4"> {# Applied theme card styles #}
             <div class="card-header">
                 <h3 class="h3">Existing Roles</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body pt-0">
                 <div class="table-responsive">
-                   
-
-
-<table id="roles-table" class="table table-centered table-nowrap mb-0 rounded" style="table-layout: fixed; width: 100%;">
-    <thead class="thead-light">
-        <tr>
-            <th class="border-0" style="width: 15%; word-wrap: break-word;">Name</th>
-            <th class="border-0" style="width: 25%; word-wrap: break-word;">Description</th>
-            <th class="border-0" style="width: 45%; word-wrap: break-word;">Permissions</th>
-            <th class="border-0" style="width: 15%; word-wrap: break-word;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for role in roles %}
-        <tr>
-            <td style="word-wrap: break-word; white-space: normal;">{{ role.name }}</td>
-            <td style="word-wrap: break-word; white-space: normal;">{{ role.description|default:"-" }}</td>
-            <td style="word-wrap: break-word; white-space: normal;">
-                <div style="max-height: 100px; overflow-y: auto; padding: 5px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa;">
-                    {% for perm in role.permissions.all %}
-                        <span class="badge bg-info mb-1" style="display: inline-block; margin: 2px 4px 2px 0;">{{ perm.name }}</span>
-                    {% empty %}
-                        <span class="badge bg-secondary">None</span>
-                    {% endfor %}
-                </div>
-            </td>
-          <td style="word-wrap: break-word; white-space: normal;">
-    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <a href="{% url 'update-role' role.id %}" class="btn btn-sm btn-warning">Edit</a>
-        <form action="{% url 'delete-role' role.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this role? This will not delete employees, but will unassign the role from them.');">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-        </form>
-    </div>
-</td>
-
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" class="text-center">No roles found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
+                    <table id="roles-table" class="table table-hover table-centered table-nowrap mb-0 rounded" style="table-layout: fixed; width: 100%;">
+                        <thead> {# Removed thead-light class #}
+                            <tr>
+                                <th class="border-0" style="width: 15%; word-wrap: break-word;">Name</th>
+                                <th class="border-0" style="width: 25%; word-wrap: break-word;">Description</th>
+                                <th class="border-0" style="width: 45%; word-wrap: break-word;">Permissions</th>
+                                <th class="border-0" style="width: 15%; word-wrap: break-word;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for role in roles %}
+                            <tr>
+                                <td style="word-wrap: break-word; white-space: normal;">{{ role.name }}</td>
+                                <td style="word-wrap: break-word; white-space: normal;">{{ role.description|default:"-" }}</td>
+                                <td style="word-wrap: break-word; white-space: normal;">
+                                    <div class="badge-permissions-list"> {# Applied custom class #}
+                                        {% for perm in role.permissions.all %}
+                                            <span class="badge-custom">{{ perm.name }}</span> {# Applied custom class #}
+                                        {% empty %}
+                                            <span class="badge-none">None</span> {# Applied custom class #}
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td style="word-wrap: break-word; white-space: normal;">
+                                    <div class="d-flex flex-wrap gap-2"> {# Replaced inline style with Bootstrap classes #}
+                                        {% if request.custom_user|has_perm:'update_role' %}
+                                        <a href="{% url 'update-role' role.id %}" class="btn btn-sm btn-custom-edit">Edit</a> {# Used btn-custom-edit #}
+                                        {% endif %}
+                                        {% if request.custom_user|has_perm:'delete_role' %}
+                                        <form action="{% url 'delete-role' role.id %}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this role? This will not delete employees, but will unassign the role from them.');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No roles found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -108,14 +259,70 @@
 
 {% endblock %}
 
-{% block head %}
+{% block extra_head_css %}
 {{ block.super }}
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css"/>
+{% endblock %}
+
+{% block extra_body_scripts %}
+{{ block.super }}
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        $('#roles-table').DataTable({
-            dom: 'Bfrtip',
-            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
-        });
+        // Ensure jQuery is available and DataTables are loaded
+        if (typeof jQuery != 'undefined' && typeof jQuery.fn.DataTable != 'undefined') {
+            $('#roles-table').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        exportOptions: {
+                            columns: [ 0, 1, 2 ] // Only copy Name, Description, Permissions
+                        }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        exportOptions: {
+                            columns: [ 0, 1, 2 ]
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        exportOptions: {
+                            columns: [ 0, 1, 2 ]
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        exportOptions: {
+                            columns: [ 0, 1, 2 ]
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        exportOptions: {
+                            columns: [ 0, 1, 2 ]
+                        }
+                    }
+                ],
+                // Disable sorting on the 'Actions' and 'Permissions' columns
+                columnDefs: [
+                    { orderable: false, targets: [2, 3] }
+                ]
+            });
+        } else {
+            console.warn("jQuery or DataTables not loaded, DataTable initialization skipped.");
+        }
     });
 </script>
 {% endblock %}

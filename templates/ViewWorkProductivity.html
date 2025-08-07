@@ -2,6 +2,189 @@
 {% block dashboard_content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script src="static/visuals/Chart.min.js"></script>
+<div class="row justify-content-center pt-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 border-0 p-4">
+            <h3 class="h3 text-center mb-4">View Work Productivity</h3>
+            <input type="hidden" id="e_id" value="{{msg2}}">
+            <input type="hidden" id="t_update_date" value="{{msg3}}">
+            <input type="hidden" id="o_id" value="{{request.session.o_id}}">
+            {% if msg is not none and msg %}
+            <div class="d-flex justify-content-center mb-4">
+                <img class="img-fluid" src="/static/html/assets/img/undraw_Data_extraction_re_0rd3.png" alt="Data Extraction Illustration" style="max-width: 300px; height: auto;">
+            </div>
+            <div class="row g-4 mb-4"> {# Use g-4 for consistent spacing between stat cards #}
+                <div class="col-12 col-md-3">
+                    <div class="card shadow-sm rounded-3 p-3 text-center">
+                        <h4 class="h6 fw-bold mb-0">Total Time Spent: <br><span class="text-primary">{{msg6}} seconds</span></h4>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card shadow-sm rounded-3 p-3 text-center">
+                        <h4 class="h6 fw-bold mb-0">Productive Time: <br><span class="text-success">{{msg1}} seconds</span></h4>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card shadow-sm rounded-3 p-3 text-center">
+                        <h4 class="h6 fw-bold mb-0">Unproductive Time: <br><span class="text-danger">{{msg4}} seconds</span></h4>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card shadow-sm rounded-3 p-3 text-center">
+                        <h4 class="h6 fw-bold mb-0">Undefined Time: <br><span class="text-warning">{{msg5}} seconds</span></h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-4"> {# Add mb-4 for spacing before chart #}
+                <table id="example" class="table table-hover table-centered table-nowrap mb-0 rounded">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Sr. No.</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Productivity</th>
+                            <th सीएचОL>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for title, result, time in msg %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{title}}</td>
+                            <td>
+                                {% if result == 1 %}
+                                <span class="badge bg-success">Productive</span>
+                                {% elif result == 2 %}
+                                <span class="badge bg-danger">Unproductive</span>
+                                {% elif result == 3 %}
+                                <span class="badge bg-warning">Undefined</span>
+                                {% endif %}
+                            </td>
+                            <td>{{time}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mx-auto" style="width: 100%; max-width: 600px;"> {# Center the chart and limit its max width #}
+                <canvas id="pieChart"></canvas>
+            </div>
+            {% else %}
+            <div class="text-center">
+                <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                    background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                </lottie-player>
+                <h3 class="h3 text-center">
+                    No Records Found!
+                </h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+    });
+
+    console.log('Function Executing.....');
+    let date = $("#t_update_date").val().replace(/-0+/g, '-');
+    let eid = $("#e_id").val();
+    let oid = $("#o_id").val();
+    let eidanddate = eid + 'and' + date + 'and' + oid;
+    console.log(eidanddate);
+    request_url = 'get_prod_details/' + eidanddate;
+    $.ajax({
+        url: request_url,
+        success: function (data) {
+            console.log("Responsee");
+            let prd_total = data['prd_total'];
+            let unprd_total = data['unprd_total'];
+            let undef_total = data['undef_total'];
+            if (prd_total > 0 || unprd_total > 0 || undef_total > 0) {
+                makePie(prd_total, unprd_total, undef_total);
+            } else {
+                $('#pieChart').hide(); 
+            }
+            let total_time = undef_total + unprd_total + prd_total;
+            console.log("Total time calculated:", secondsToTime(total_time.toString()));
+        },
+        error: function (e) {
+            console.error("Error fetching productivity details:", e);
+        }
+    })
+
+    function makePie(prd_total, unprd_total, undef_total) {
+        var ctx = document.getElementById("pieChart").getContext('2d');
+        var data = {
+            datasets: [{
+                data: [prd_total, unprd_total, undef_total],
+                backgroundColor: [
+                    "#10B981", 
+                    "#E11D48", 
+                    "#f3c78e"  
+                ],
+                label: 'Productivity Breakdown'
+            }],
+            labels: [
+                "Productive Apps",
+                "Unproductive Apps",
+                "Undefined Apps",
+            ]
+        };
+
+        var pieChart = new Chart(ctx, {
+            data: data,
+            type: 'pie',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        fontColor: '#1F2937',
+                        fontSize: 14
+                    }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            var label = data.labels[tooltipItem.index] || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += data.datasets[0].data[tooltipItem.index] + ' seconds';
+                            return label;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function secondsToTime(secs) {
+        var hours = Math.floor(secs / (60 * 60));
+        var divisor_for_minutes = secs % (60 * 60);
+        var minutes = Math.floor(divisor_for_minutes / 60);
+        var divisor_for_seconds = divisor_for_minutes % 60;
+        var seconds = Math.ceil(divisor_for_seconds);
+
+        return hours.toString() + 'h ' + minutes.toString() + 'm ' + seconds.toString() + 's';
+    }
+</script>
+
+{% endblock %}
+
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script src="static/visuals/Chart.min.js"></script>
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -177,4 +360,4 @@
     }
 </script>
 
-{% endblock %}
+{% endblock %} {% endcomment %}

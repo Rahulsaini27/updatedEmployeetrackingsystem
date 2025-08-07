@@ -1,57 +1,87 @@
 {% extends 'EmpDashboard.html' %}
 {% block dashboard_content  %}
-<div class="container">
-    <div class="container-fluid kanban-container py-4 px-0">
-        <div class="row d-flex flex-nowrap">
-            {% for board in board_details %}
-            <div class="col-12 col-lg-6 col-xl-4 col-xxl-3">
-                <div class="card border-0 shadow p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h2 fw-bold mb-0 d-flex justify-content-center">{{ board.b_name|upper }}</h2>
-                    </div>
-                    <div id="kanbanColumn1" class="list-group kanban-list">
-                        {% for task in board.boardids.all %}
-                        {% if task.e_id.id == request.session.u_id %}
-                        <div class="card border-1 shadow p-4">
-                            <div
-                                class="card-header d-flex align-items-center justify-content-between border-0 p-0 mb-2">
-                                <h3 class="h3 mb-0">{{task.t_name|upper}}</h3>
-                            </div>
-                            <div class="card-body p-0">
-                                <p>{{task.t_desc}}</p>
+<div class="container py-4"> {# Added container and py-4 for overall padding #}
+    <div class="kanban-container d-flex flex-nowrap overflow-auto"> {# Ensure horizontal scrolling on small screens #}
+        {% for board in board_details %}
+        <div class="col-12 col-lg-6 col-xl-4 col-xxl-3 flex-shrink-0 px-2" style="min-width: 300px;"> {# Fixed width columns for kanban view #}
+            <div class="card shadow rounded-3 p-4 mb-4"> {# Consistent card styling, mb-4 for spacing between boards #}
+                <div class="text-center mb-3">
+                    <h2 class="h4 fw-bold mb-0">{{ board.b_name|upper }}</h2> {# Slightly smaller heading for board titles #}
+                </div>
+                <div class="kanban-list"> {# Removed list-group class if not explicitly used for list-group styling #}
+                    {% for task in board.boardids.all %}
+                    {% if task.e_id.id == request.session.u_id %}
+                    <div class="card shadow-sm rounded-3 p-3 mb-3"> {# Smaller, lighter card for tasks #}
+                        <h4 class="h5 mb-2 fw-bold">{{task.t_name|upper}}</h4> {# Smaller heading for task names #}
+                        <p class="text-muted small mb-3">{{task.t_desc}}</p> {# Smaller text for description #}
 
-                                <h4 class="fs-6 fw-normal mt-4"><b>Project:</b>
-                                    {{task.p_id.p_name|upper}}</h4>
-
-                                <h4 class="fs-6 fw-normal mt-4"><b>Assigned:</b>
-                                    {{task.e_id.e_name|upper}}</h4>
-                                <h4 class="fs-6 fw-normal mt-4"><b>Priority:</b>
-                                    {% if task.t_priority == "High Priority" %}
-                                    <span class="badge bg-danger">High</span>
-                                    {% elif task.t_priority == "Medium Priority" %}
-                                    <span class="badge bg-warning">Medium</span>
-                                    {% elif task.t_priority == "Low Priority" %}
-                                    <span class="badge bg-info">Low</span>
-                                    {% endif %}
-                                </h4>
-                                <h5 class="fs-6 fw-normal mt-4"><b>Assigned Date:</b>
-                                    {{task.t_assign_date}}
-                                </h5>
-                                <h5 class="fs-6 fw-normal mt-4"><b>Deadline Date:</b>
-                                    {{ task.t_deadline_date}}
-                                </h5>
-                            </div>
-                        </div>
-                        <br>
-                        {% endif %}
-                        {% endfor %}
+                        <ul class="list-unstyled mb-0"> {# Use list-unstyled for details without bullets #}
+                            <li class="mb-1"><strong>Project:</strong> <span class="fw-normal">{{task.p_id.p_name|upper}}</span></li>
+                            <li class="mb-1"><strong>Assigned:</strong> <span class="fw-normal">{{task.e_id.e_name|upper}}</span></li>
+                            <li class="mb-1">
+                                <strong>Priority:</strong>
+                                {% if task.t_priority == "High Priority" %}
+                                <span class="badge bg-danger">High</span>
+                                {% elif task.t_priority == "Medium Priority" %}
+                                <span class="badge bg-warning">Medium</span>
+                                {% elif task.t_priority == "Low Priority" %}
+                                <span class="badge bg-info">Low</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-1"><strong>Assigned Date:</strong> <span class="fw-normal">{{task.t_assign_date}}</span></li>
+                            <li><strong>Deadline Date:</strong> <span class="fw-normal">{{ task.t_deadline_date}}</span></li>
+                        </ul>
                     </div>
+                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
-            <br>
-            <br>
         </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
+{% comment %} {% extends 'EmpDashboard.html' %}
+{% block dashboard_content  %}
+<div class="container py-4"> {# Added container and py-4 for overall padding #}
+    <div class="kanban-container d-flex flex-nowrap overflow-auto"> {# Ensure horizontal scrolling on small screens #}
+        {% for board in board_details %}
+        <div class="col-12 col-lg-6 col-xl-4 col-xxl-3 flex-shrink-0 px-2" style="min-width: 300px;"> {# Fixed width columns for kanban view #}
+            <div class="card shadow rounded-3 p-4 mb-4"> {# Consistent card styling, mb-4 for spacing between boards #}
+                <div class="text-center mb-3">
+                    <h2 class="h4 fw-bold mb-0 text-white">{{ board.b_name|upper }}</h2> {# Slightly smaller heading for board titles #}
+                </div>
+                <div class="kanban-list"> {# Removed list-group class if not explicitly used for list-group styling #}
+                    {% for task in board.boardids.all %}
+                    {% if task.e_id.id == request.session.u_id %}
+                    <div class="card shadow-sm rounded-3 p-3 mb-3"> {# Smaller, lighter card for tasks #}
+                        <h4 class="h5 mb-2 fw-bold text-primary">{{task.t_name|upper}}</h4> {# Smaller heading for task names #}
+                        <p class="text-muted small mb-3">{{task.t_desc}}</p>
+
+                        <ul class="list-unstyled mb-0 text-light-gray"> {# Use list-unstyled for details without bullets #}
+                            <li class="mb-1"><strong>Project:</strong> <span class="fw-normal">{{task.p_id.p_name|upper}}</span></li>
+                            <li class="mb-1"><strong>Assigned:</strong> <span class="fw-normal">{{task.e_id.e_name|upper}}</span></li>
+                            <li class="mb-1">
+                                <strong>Priority:</strong>
+                                {% if task.t_priority == "High Priority" %}
+                                <span class="badge bg-danger">High</span>
+                                {% elif task.t_priority == "Medium Priority" %}
+                                <span class="badge bg-warning">Medium</span>
+                                {% elif task.t_priority == "Low Priority" %}
+                                <span class="badge bg-info">Low</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-1"><strong>Assigned Date:</strong> <span class="fw-normal">{{task.t_assign_date}}</span></li>
+                            <li><strong>Deadline Date:</strong> <span class="fw-normal">{{ task.t_deadline_date}}</span></li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} {% endcomment %}
+

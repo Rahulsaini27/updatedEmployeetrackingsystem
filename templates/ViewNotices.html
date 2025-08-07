@@ -2,6 +2,57 @@
 {% block dashboard_content %}
 {% load custom_perms %} {# Add this line #}
 {% csrf_token %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 border-0 p-4">
+            <h3 class="h3 text-center mb-4">View Notices</h3>
+            {% if notices is not none and notices %}
+            <div class="d-flex justify-content-center mb-4">
+                <img class="img-fluid" src="/static/html/assets/img/undraw_Online_information_re_erks.png" alt="Online Information Illustration" style="max-width: 300px; height: auto;">
+            </div>
+            <div class="row"> {# Wrap notice cards in a row #}
+                {% for notice in notices %}
+                <div class="col-12 col-md-6 col-lg-4 mb-4"> {# Responsive column sizing #}
+                    <div class="card shadow-sm rounded-3 p-4"> {# Consistent card styling #}
+                        <h4 class="h5 fw-bold text-primary mb-2">{{notice.on_title}}</h4>
+                        <p class="card-text text-muted small mb-3">{{notice.on_desc}}</p>
+                        <small class="text-gray-600 mb-3 d-block">
+                            <span class="fas fa-clock me-1"></span> Created/Updated:
+                            {% load tz %}
+                            {% timezone "Asia/Kolkata" %}
+                            {{notice.on_date_time}}
+                            {% endtimezone %}
+                        </small>
+                        <div class="d-flex flex-wrap gap-2 mt-auto"> {# Flexbox for buttons with spacing #}
+                            {% if request.custom_user|has_perm:'update_notice' %} {# <-- This permission check #}
+                            <a href="/update-notice/{{ notice.id }}/" class="btn btn-warning btn-sm">Update</a>
+                            {% endif %}
+                            {% if request.custom_user|has_perm:'delete_notice' %} {# <-- This permission check #}
+                            <a href="{% url 'delete-notice' notice.id  %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this notice?');">Delete</a> {# Added confirmation #}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center">
+                <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                    background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                </lottie-player>
+                <h3 class="h3 text-center">
+                    No Records Found!
+                </h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+{% load custom_perms %} {# Add this line #}
+{% csrf_token %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -56,4 +107,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

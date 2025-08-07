@@ -42,6 +42,8 @@
                 });
             }
 
+            // This part is now mostly handled by layout.html's global script,
+            // but the specific sidebar collapse/hide logic still applies here.
             const sidebarMenu = document.getElementById('sidebarMenu');
             const sidebarBackdrop = document.querySelector('.sidebar-backdrop'); 
 
@@ -71,6 +73,8 @@
                     });
                 });
 
+                // Window resize listener is now primarily in layout.html to handle global layout.
+                // This part might be redundant or could be kept for specific sidebar behavior.
                 window.addEventListener('resize', function() {
                     if (window.innerWidth >= 768) {
                         sidebarMenu.classList.add('show');
@@ -91,7 +95,7 @@
 
 {# This block will define the entire content of the main dashboard area. #}
 {% block dashboard_page_content %} 
-    {# Removed the mobile-only navbar from here. It's now in sidebar_menu_content. #}
+    {# Removed the navbar-top from here. The global _navbar.html now handles the sidebar toggler. #}
     <main class="main-content"> {# Removed col-*, ms-auto, and py/px classes - handled by main-content-area parent or content itself #}
         {% block dashboard_content %}{% endblock %} {# This block is for the specific page content (e.g., tables, forms) #}
     </main>
@@ -99,9 +103,21 @@
 
 {# This new block defines the content for the fixed sidebar #}
 {% block sidebar_menu_content %} 
-    {# Removed the mobile-only navbar from here. It's now handled by the sidebar-mobile-header in layout.html #}
-    {# The user-card is now directly below the header within sidebar-inner #}
-    <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
+    {# New: Mobile header for the sidebar. Only visible on mobile. #}
+    <div class="sidebar-mobile-header d-md-none d-flex align-items-center justify-content-between p-3">
+        <a class="navbar-brand me-lg-5" href="/user_index">
+            <lottie-player src="{% static 'html/assets/img/logo_animation.json' %}" background="transparent"
+                speed="1" style="width: 50px; height: 50px; display: inline-block; vertical-align: middle;" loop autoplay>
+            </lottie-player>
+            <span style="font-size:18px; display: inline-block; vertical-align: middle; color: #343a40; font-weight: bold;">My Remote Desk</span>
+        </a>
+        <div class="collapse-close">
+            <a href="#sidebarMenu" class="fas fa-times" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
+                aria-controls="sidebarMenu" aria-expanded="true" aria-label="Toggle navigation" style="color: #343a40;"></a>
+        </div>
+    </div>
+    {# The user-card for mobile sidebar. #}
+    <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4 px-4">
         <div class="d-flex align-items-center">
             <div class="user-avatar lg-avatar me-4">
                 <img src="{% static 'html/assets/img/user-profile.png' %}"
@@ -113,12 +129,12 @@
                         class="me-2"><span class="fas fa-sign-out-alt"></span></span>Logout</a>
             </div>
         </div>
-        {# Removed the collapse-close d-md-none from here, as it's now globally managed in layout's sidebar-mobile-header #}
+        {# Removed the collapse-close d-md-none from here, as it's now handled in sidebar-mobile-header #}
     </div>
 
     <ul class="nav flex-column pt-3 pt-md-0">
         <li class="nav-item">
-            <h2 class="h6">Hi, {{request.session.u_name.upper}}</h2>
+            <h2 class="h6 px-4">Hi, {{request.session.u_name.upper}}</h2>
         </li>
          <li class="nav-item">
                     <a href="/emp-profile" class="nav-link d-flex align-items-center">
@@ -665,15 +681,698 @@
         </li>
         {% endif %}
 
-        
-
-
-
          <li class="nav-item">
-    <a href="#" onclick="funLogout()" 
-       class="btn bg-warning text-dark w-100 d-flex align-items-center justify-content-center">
-        <span class="sidebar-icon">Logout</span>
-    </a>
-</li>
+            <a href="#" onclick="funLogout()" 
+               class="btn bg-warning text-dark w-100 d-flex align-items-center justify-content-center">
+                <span class="sidebar-icon">Logout</span>
+            </a>
+        </li>
     </ul>
 {% endblock %}
+{% comment %} 
+{% extends 'layout.html' %}
+{% load static %}
+{% load custom_perms %} {# <-- Ensure this is at the very top of your file #}
+
+{% block extra_head_css %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.5/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.2/viewer.css" integrity="sha512-HGWrJz+Lr07phD0DNoLsSVwn3przno/eSLf1cGOrLzr6c7NUZROZJPhQdSPmLHNbsO0HP2UfUnpKTMiVxonEHw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock %}
+
+{% block extra_body_scripts %}
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.print.min.js"></script>
+
+    <script src="{% static 'visuals/echarts.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.2/viewer.js" integrity="sha512-taR40V17AK2+3RjqzCYkczb0/hTHuQCid0kBs0I2g6DqkFjkTcAIpsa+4PzGuWcRica2AOZQmz4pNPj4InFR8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // This script is only relevant if there's an activeEmps element, typically on the OrgDashboard.
+            // Adjusted condition to explicitly check for u_type === 'org' to match previous logic.
+            // For EmpDashboard, this block will likely not execute unless activeEmps element exists and is_org is true.
+            if (document.getElementById('activeEmps') && "{{ request.session.u_type }}" === "org") {
+                const request_url = '/get_emp_logged_in_count_today';
+                $.ajax({
+                    url: request_url,
+                    success: function (data) {
+                        console.log("Active Employees Response:", data);
+                        const logged_in_count = data['logged_in_count'];
+                        const total_emps = data['total_emps'];
+                        document.getElementById('activeEmps').innerHTML = `Active: ${logged_in_count}/${total_emps}`;
+                    },
+                    error: function (e) {
+                        console.error("Error fetching active employees:", e);
+                    }
+                });
+            }
+
+            // This part is now mostly handled by layout.html's global script,
+            // but the specific sidebar collapse/hide logic still applies here.
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            const sidebarBackdrop = document.querySelector('.sidebar-backdrop');
+
+            if (sidebarMenu && sidebarBackdrop) {
+                sidebarMenu.addEventListener('show.bs.collapse', function () {
+                    document.body.classList.add('sidebar-open-mobile');
+                });
+                sidebarMenu.addEventListener('hide.bs.collapse', function () {
+                    document.body.classList.remove('sidebar-open-mobile');
+                });
+
+                sidebarBackdrop.addEventListener('click', function() {
+                    const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                    if (bsCollapse) {
+                        bsCollapse.hide();
+                    }
+                });
+
+                sidebarMenu.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < 768 && sidebarMenu.classList.contains('show')) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                            if (bsCollapse) {
+                                bsCollapse.hide();
+                            }
+                        }
+                    });
+                });
+
+                // Window resize listener is now primarily in layout.html to handle global layout.
+                // This part might be redundant or could be kept for specific sidebar behavior.
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) {
+                        sidebarMenu.classList.add('show');
+                        document.body.classList.remove('sidebar-open-mobile');
+                    } else {
+                        if (!sidebarMenu.classList.contains('show')) {
+                            sidebarMenu.style.transform = 'translateX(-100%)';
+                        }
+                    }
+                });
+                if (window.innerWidth >= 768) {
+                    sidebarMenu.classList.add('show');
+                }
+            }
+        });
+    </script>
+{% endblock %}
+
+{# This block will define the entire content of the main dashboard area. #}
+{% block dashboard_page_content %}
+    {# Removed the navbar-top from here. The global _navbar.html now handles the sidebar toggler. #}
+    <main class="main-content"> {# Removed col-*, ms-auto, and py/px classes - handled by main-content-area parent or content itself #}
+        {% block dashboard_content %}{% endblock %} {# This block is for the specific page content (e.g., tables, forms) #}
+    </main>
+{% endblock %}
+
+{# This new block defines the content for the fixed sidebar #}
+{% block sidebar_menu_content %}
+    {# New: Mobile header for the sidebar. Only visible on mobile. #}
+    <div class="sidebar-mobile-header d-md-none d-flex align-items-center justify-content-between p-3">
+        <a class="navbar-brand me-lg-5" href="/user_index">
+            <lottie-player src="{% static 'html/assets/img/logo_animation.json' %}" background="transparent"
+                speed="1" style="width: 50px; height: 50px; display: inline-block; vertical-align: middle;" loop autoplay>
+            </lottie-player>
+            <span style="font-size:18px; display: inline-block; vertical-align: middle; color: var(--text-dark-on-light); font-weight: bold;">My Remote Desk</span>
+        </a>
+        <div class="collapse-close">
+            <a href="#sidebarMenu" class="fas fa-times" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
+                aria-controls="sidebarMenu" aria-expanded="true" aria-label="Toggle navigation" style="color: var(--text-dark-on-light);"></a>
+        </div>
+    </div>
+    {# The user-card for mobile sidebar. #}
+    <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4 px-4">
+        <div class="d-flex align-items-center">
+            <div class="user-avatar lg-avatar me-4">
+                <img src="{% static 'html/assets/img/user-profile.png' %}"
+                    class="card-img-top rounded-circle border-white" alt="Bonnie Green">
+            </div>
+            <div class="d-block">
+                <h2 class="h6 text-white">{{request.session.u_name.upper}}</h2>
+                <a href="#" onclick="funLogout()" class="btn btn-secondary text-dark btn-xs"><span
+                        class="me-2"><span class="fas fa-sign-out-alt"></span></span>Logout</a>
+            </div>
+        </div>
+        {# Removed the collapse-close d-md-none from here, as it's now handled in sidebar-mobile-header #}
+    </div>
+
+    <ul class="nav flex-column pt-3 pt-md-0">
+        <li class="nav-item">
+            <h2 class="h6 px-4 text-white">Hi, {{request.session.u_name.upper}}</h2>
+        </li>
+         <li class="nav-item">
+                    <a href="/emp-profile" class="nav-link d-flex align-items-center">
+                        <span class="sidebar-icon"><span class="fas fa-user"></span></span>
+                        <span class="sidebar-text">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/emp-view-notices">
+                        <span class="sidebar-icon"><span class="fas fa-envelope-open"></span></span>
+                        <span class="sidebar-text">Notices</span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link" href="/user-read-meets">
+                        <span class="sidebar-icon"><span class="fas fa-video"></span></span>
+                        <span class="sidebar-text">Meetings</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <span class="nav-link  collapsed  d-flex justify-content-between align-items-center"
+                        data-bs-toggle="collapse" data-bs-target="#submenu-components3">
+                        <span>
+                            <span class="sidebar-icon"><span class="fas fa-plus"></span></span>
+                            <span class="sidebar-text">Monitoring</span>
+                        </span>
+                        <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+                    </span>
+                    <div class="multi-level collapse " role="list" id="submenu-components3" aria-expanded="false">
+                        <ul class="flex-column nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/user-view-app-web">
+                                    <span class="sidebar-text">App/Web Logs</span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/user-depth-view-app-web">
+                                    <span class="sidebar-text">Detailed App/Web Logs</span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/user-ss-monitoring">
+                                    <span class="sidebar-text">Screenshots Logs</span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/user-power-monitoring">
+                                    <span class="sidebar-text">Power Monitoring Logs</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <span class="nav-link  collapsed  d-flex justify-content-between align-items-center"
+                        data-bs-toggle="collapse" data-bs-target="#submenu-components6">
+                        <span>
+                            <span class="sidebar-icon"><span class="fas fa-plus"></span></span>
+                            <span class="sidebar-text">Productivity</span>
+                        </span>
+                        <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+                    </span>
+                    <div class="multi-level collapse " role="list" id="submenu-components6" aria-expanded="false">
+                        <ul class="flex-column nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/user-work-productivity-check">
+                                    <span class="sidebar-text">Check Productivity</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <span class="nav-link  collapsed  d-flex justify-content-between align-items-center"
+                        data-bs-toggle="collapse" data-bs-target="#submenu-components4">
+                        <span>
+                            <span class="sidebar-icon"><span class="fas fa-plus"></span></span>
+                            <span class="sidebar-text">Projects Overview </span>
+                        </span>
+                        <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+                    </span>
+                    <div class="multi-level collapse " role="list" id="submenu-components4" aria-expanded="false">
+                        <ul class="flex-column nav">
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/user-view-projects">
+                                    <span class="sidebar-text">Projects</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/user-overview-task">
+                                    <span class="sidebar-text">Task Overview</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/emp-view-tasks">
+                                <span class="sidebar-text">Tasks</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+
+
+                <li class="nav-item">
+                    <span class="nav-link  collapsed  d-flex justify-content-between align-items-center"
+                        data-bs-toggle="collapse" data-bs-target="#submenu-components5">
+                        <span>
+                            <span class="sidebar-icon"><span class="fas fa-plus"></span></span>
+                            <span class="sidebar-text">Attendance & Leaves</span>
+                        </span>
+                        <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+                    </span>
+                    <div class="multi-level collapse " role="list" id="submenu-components5" aria-expanded="false">
+                        <ul class="flex-column nav">
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/user-view-attendance">
+                                    <span class="sidebar-text">Attendance</span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/user-apply-emp-leaves">
+                                    <span class="sidebar-text">Apply Leaves</span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/user-view-emp-leaves">
+                                    <span class="sidebar-text">View Leaves</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+
+                <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
+                <li class="nav-item ">
+                    <a href="/user_report_problems" class="nav-link">
+                        <span class="sidebar-icon"><span class="fas fa-bug"></span></span>
+                        <span class="sidebar-text">Report Problems</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/user_change_password" class="nav-link d-flex align-items-center">
+                        <span class="sidebar-icon"><span class="fas fa-key"></span></span>
+                        <span class="sidebar-text">Change Password</span>
+                    </a>
+                </li>
+
+        {# RBAC Management Section #}
+        {% if request.custom_user|has_perm:'view_permission' or request.custom_user|has_perm:'view_role' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-rbac">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-users"></span></span>
+
+                    <span class="sidebar-text">RBAC Management</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-rbac" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'view_permission' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-permission">
+                            <span class="sidebar-text">Permissions</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_role' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-role">
+                            <span class="sidebar-text">Roles</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Employee Management Section #}
+        {% if request.custom_user|has_perm:'add_employee' or request.custom_user|has_perm:'view_employee' or request.custom_user|has_perm:'view_attendance' or request.custom_user|has_perm:'manage_employee_leaves' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-employee">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-users"></span></span>
+                    <span class="sidebar-text">Employee Management</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-employee" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'add_employee' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/create-emp">
+                            <span class="sidebar-text">Add Employee</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_employee' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-emp">
+                            <span class="sidebar-text">View & Edit Employee</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_attendance' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/org-view-attendance">
+                            <span class="sidebar-text">View Attendance</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'manage_employee_leaves' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/emp-leaves">
+                            <span class="sidebar-text">Employee Leaves</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Monitoring Section #}
+        {% if request.custom_user|has_perm:'view_app_web_logs' or request.custom_user|has_perm:'view_detailed_app_web_logs' or request.custom_user|has_perm:'view_screenshots' or request.custom_user|has_perm:'view_power_logs' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed  d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-monitoring">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-eye"></span></span>
+                    <span class="sidebar-text">Monitoring</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-monitoring" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'view_app_web_logs' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/view-app-web">
+                            <span class="sidebar-text">App/Web Logs</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_detailed_app_web_logs' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/depth-view-app-web">
+                            <span class="sidebar-text">Detailed App/Web Logs</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_screenshots' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ss-monitoring">
+                            <span class="sidebar-text">Screenshot Logs</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_power_logs' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/power-monitoring">
+                            <span class="sidebar-text">Power Monitoring Logs</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Productivity Section #}
+        {% if request.custom_user|has_perm:'add_work_productivity_dataset' or request.custom_user|has_perm:'edit_work_productivity_dataset' or request.custom_user|has_perm:'check_productivity' or request.custom_user|has_perm:'view_monitoring_piechart' or request.custom_user|has_perm:'rank_employees_productivity' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed  d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-productivity">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-tasks"></span></span>
+                    <span class="sidebar-text">Productivity</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-productivity" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'add_work_productivity_dataset' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/create-wp">
+                            <span class="sidebar-text">Add Dataset</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'edit_work_productivity_dataset' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/edit-wp">
+                            <span class="sidebar-text">View & Edit Dataset</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'check_productivity' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/work-productivity-check">
+                            <span class="sidebar-text">Check Productivity</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_monitoring_piechart' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logDashboard">
+                            <span class="sidebar-text">Monitoring PieChart</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'rank_employees_productivity' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/rank-productivity">
+                            <span class="sidebar-text">Employee Ranking</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Projects Section #}
+        {% if request.custom_user|has_perm:'create_project' or request.custom_user|has_perm:'view_project' or request.custom_user|has_perm:'assign_project' or request.custom_user|has_perm:'unassign_employee_from_project' or request.custom_user|has_perm:'view_project_employees' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed  d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-projects">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-folder"></span></span>
+                    <span class="sidebar-text">Projects</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-projects" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'create_project' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/create-proj">
+                            <span class="sidebar-text">Create Projects</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_project' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-proj">
+                            <span class="sidebar-text">View Projects</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'assign_project' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/assign-proj">
+                            <span class="sidebar-text">Assign Projects</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'unassign_employee_from_project' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/select-unassign">
+                            <span class="sidebar-text">Unassign Projects</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_project_employees' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/view-project-wise-employees">
+                            <span class="sidebar-text">View Project Employees</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Boards Section #}
+        {% if request.custom_user|has_perm:'create_board' or request.custom_user|has_perm:'view_board' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed  d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-boards">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-clipboard"></span></span>
+                    <span class="sidebar-text">Boards</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-boards" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'create_board' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/create-board">
+                            <span class="sidebar-text">Add Board</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_board' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-boards">
+                            <span class="sidebar-text">View Boards</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Tasks Section #}
+        {% if request.custom_user|has_perm:'create_task' or request.custom_user|has_perm:'view_task' or request.custom_user|has_perm:'overview_tasks' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed  d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-tasks">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-check-square"></span></span>
+                    <span class="sidebar-text">Tasks</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-tasks" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'overview_tasks' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/overview-task">
+                            <span class="sidebar-text">Task Overview</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'create_task' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/create-task">
+                            <span class="sidebar-text">Create Task</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_task' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-task">
+                            <span class="sidebar-text">View & Edit Tasks</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Meetings Section #}
+        {% if request.custom_user|has_perm:'create_meeting' or request.custom_user|has_perm:'view_meeting' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed  d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-meetings">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-video"></span></span>
+                    <span class="sidebar-text">Meetings</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-meetings" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'create_meeting' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/create-meet">
+                            <span class="sidebar-text">Create Meeting</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_meeting' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-meet">
+                            <span class="sidebar-text">View Meetings</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        {# Notices Section #}
+        {% if request.custom_user|has_perm:'create_notice' or request.custom_user|has_perm:'view_notice' or request.custom_user|has_perm:'overview_notice' %}
+        <li class="nav-item">
+            <span class="nav-link collapsed  d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" data-bs-target="#submenu-notices">
+                <span>
+                    <span class="sidebar-icon"><span class="fas fa-bullhorn"></span></span>
+                    <span class="sidebar-text">Notices</span>
+                </span>
+                <span class="link-arrow"><span class="fas fa-chevron-right"></span></span>
+            </span>
+            <div class="multi-level collapse" role="list" id="submenu-notices" aria-expanded="false">
+                <ul class="flex-column nav">
+                    {% if request.custom_user|has_perm:'overview_notice' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/overview-notice">
+                            <span class="sidebar-text">Notices Overview</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'create_notice' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/create-notice">
+                            <span class="sidebar-text">Create Notice</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.custom_user|has_perm:'view_notice' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/read-notice">
+                            <span class="sidebar-text">View Notices</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </li>
+        {% endif %}
+
+        <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
+        <li class="nav-item ">
+            <a href="/user_report_problems" class="nav-link">
+                <span class="sidebar-icon"><span class="fas fa-bug"></span></span>
+                <span class="sidebar-text">Report Problems</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/user_change_password" class="nav-link d-flex align-items-center">
+                <span class="sidebar-icon"><span class="fas fa-key"></span></span>
+                <span class="sidebar-text">Change Password</span>
+            </a>
+        </li>
+
+         <li class="nav-item">
+            <a href="#" onclick="funLogout()"
+               class="btn bg-warning text-dark w-100 d-flex align-items-center justify-content-center">
+                <span class="sidebar-icon">Logout</span>
+            </a>
+        </li>
+    </ul>
+{% endblock %} {% endcomment %}
+

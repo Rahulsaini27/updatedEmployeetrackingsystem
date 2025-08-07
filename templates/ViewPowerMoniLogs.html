@@ -1,5 +1,79 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 border-0 p-4">
+            <h3 class="h3 text-center mb-4">View Employee Power Monitoring Logs</h3>
+            {% if msg is not none and msg %}
+            <div class="d-flex justify-content-center mb-4">
+                <img class="img-fluid" src="/static/html/assets/img/undraw_monitor_iqpq.png" alt="Monitor Illustration" style="max-width: 300px; height: auto;">
+            </div>
+            <div class="table-responsive py-2"> {# Added vertical padding to responsive div #}
+                <table class="table table-hover table-centered table-nowrap mb-0 rounded" id="exampleMoni">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Sr. No.</th>
+                            <th scope="col">Power State</th>
+                            <th scope="col">Time Stamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in msg %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                {% if result.pm_status == "0" %}
+                                <span class="badge bg-info text-dark">The system is going to sleep</span>
+                                {% elif result.pm_status == "1" %}
+                                <span class="badge bg-success">The system is resuming</span>
+                                {% elif result.pm_status == "2" %}
+                                <span class="badge bg-primary">The system is on AC Power (charging)</span>
+                                {% elif result.pm_status == "3" %}
+                                <span class="badge bg-warning text-dark">The system is on Battery Power</span>
+                                {% elif result.pm_status == "4" %}
+                                <span class="badge bg-danger">The system is Shutting Down</span>
+                                {% elif result.pm_status == "5" %}
+                                <span class="badge bg-secondary text-dark">The system is about to be locked</span>
+                                {% elif result.pm_status == "6" %}
+                                <span class="badge bg-success">The system is unlocked</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">Unknown State</span>
+                                {% endif %}
+                            </td>
+                            <td>{{result.pm_log_ts}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center">
+                <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                    background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                </lottie-player>
+                <h3 class="h3 text-center">
+                    No Records Found!
+                </h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#exampleMoni').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -70,4 +144,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

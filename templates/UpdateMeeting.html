@@ -1,5 +1,65 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0 p-5">
+            <h3 class="h3 text-center mb-4">Edit Meeting</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets3.lottiefiles.com/private_files/lf30_qxakfuim.json"
+                    background="transparent" speed="1" style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            <h4 class="h5 text-center mb-4 text-primary">{{meet_details.m_name.upper}}</h4> {# Emphasize meeting name #}
+            <form action="/edit-meet/{{meet_details.id}}" method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="meetName">Meet Name:</label>
+                        <input type="text" name="m_name" class="form-control" id="meetName" placeholder="Name of Meeting"
+                            value="{{meet_details.m_name}}" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="meetDesc">Meet Description:</label>
+                        <input type="text" name="m_desc" class="form-control" id="meetDesc"
+                            placeholder="Description of Meeting" value="{{meet_details.m_desc}}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="startDate">Start Date:</label>
+                            <input type="date" name="start_date" class="form-control" id="startDate"
+                                value="{{meet_details.m_start_date}}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="startTime">Start Time:</label>
+                            <input type="time" name="start_time" class="form-control" id="startTime"
+                                value="{{meet_details.m_start_time}}" required>
+                        </div>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="projectSelect">Choose Project: {{meet_details.p_id.p_name.upper}}</label> {# Display current project #}
+                        <select class="form-control" id="projectSelect" name="p_id" required>
+                            {% for pid, pname in zipped_pid_pnames %}
+                            <option value={{pid}} {% if current_project_name in pname %}selected{% endif %}>
+                                {{pname}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    var date = new Date().toISOString().slice(0, 10);
+    $('#startDate').attr('min', date);
+    // Removed #date2 min attribute as stop_date input is commented out in original.
+</script>
+{% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -75,4 +135,4 @@
     $('#date1').attr('min', date);
     $('#date2').attr('min', date);
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

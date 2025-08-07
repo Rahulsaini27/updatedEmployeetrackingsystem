@@ -1,5 +1,46 @@
 {% extends 'EmpDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0 p-5">
+            <h3 class="h3 text-center mb-4">Create Leave Request</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets5.lottiefiles.com/packages/lf20_s3u31uyq.json"
+                    background="transparent" speed="1" style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            <form action="/user-apply-emp-leaves" method="POST">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label class="form-label" for="leaveReason">Leave Reason:</label>
+                    <select name="l_reason" class="form-control" id="leaveReason" required>
+                        <option value="High Priority">High Priority</option>
+                        <option value="Medium Priority">Medium Priority</option>
+                        <option value="Low Priority">Low Priority</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label" for="leaveDesc">Leave Description</label>
+                    <textarea name="l_desc" maxlength="190" class="form-control" id="leaveDesc" rows="6" placeholder="Enter Leave Description" required></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label" for="leaveStartDate">Leave Start Date</label>
+                    <input type="date" name="l_start_date" class="form-control" id="leaveStartDate" required>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label" for="numDays">Number of Days:</label>
+                    <input type="number" name="l_no_of_leaves" class="form-control" id="numDays" placeholder="1" value="1" min="1" max="1825" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Create Leave Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% comment %} {% extends 'EmpDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -57,4 +98,4 @@
 </div>
 
 
-{% endblock %}
+{% endblock %} {% endcomment %}

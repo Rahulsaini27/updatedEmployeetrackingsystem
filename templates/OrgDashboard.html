@@ -38,105 +38,59 @@
                     }
                 });
             }
-
-            const sidebarMenu = document.getElementById('sidebarMenu');
-            const sidebarBackdrop = document.querySelector('.sidebar-backdrop'); 
-
-            if (sidebarMenu && sidebarBackdrop) {
-                sidebarMenu.addEventListener('show.bs.collapse', function () {
-                    document.body.classList.add('sidebar-open-mobile');
-                });
-                sidebarMenu.addEventListener('hide.bs.collapse', function () {
-                    document.body.classList.remove('sidebar-open-mobile');
-                });
-
-                sidebarBackdrop.addEventListener('click', function() {
-                    const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
-                    if (bsCollapse) {
-                        bsCollapse.hide();
-                    }
-                });
-                
-                sidebarMenu.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', function() {
-                        if (window.innerWidth < 768 && sidebarMenu.classList.contains('show')) {
-                            const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
-                            if (bsCollapse) {
-                                bsCollapse.hide();
-                            }
-                        }
-                    });
-                });
-
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth >= 768) {
-                        sidebarMenu.classList.add('show');
-                        document.body.classList.remove('sidebar-open-mobile');
-                    } else {
-                        if (!sidebarMenu.classList.contains('show')) {
-                            sidebarMenu.style.transform = 'translateX(-100%)';
-                        }
-                    }
-                });
-                if (window.innerWidth >= 768) {
-                    sidebarMenu.classList.add('show');
-                }
-            }
         });
     </script>
 {% endblock %}
 
-{# This block will define the entire content of the main dashboard area, including its own mobile navbar #}
+{# This block will define the entire content of the main dashboard area. #}
 {% block dashboard_page_content %} 
-    {# This mobile navbar is specific to the dashboard and will scroll with the content #}
-    <nav class="navbar navbar-dark navbar-theme-primary px-4 d-md-none"> {# IMPORTANT: Removed fixed-top here #}
-        <a class="navbar-brand me-lg-5" href="/org_index">
-            <center>
-                <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_wEt2nn.json" background="transparent"
-                    speed="1" style="width: 75px; height: 50px;" loop autoplay></lottie-player>
-            </center>
-        </a>
-        <div class="d-flex align-items-center">
-            <button class="navbar-toggler d-md-none collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
-    <main class="main-content"> {# Removed col-*, ms-auto, and py/px classes - handled by main-content-area parent or content itself #}
+    {# Removed the navbar-top from here. The global _navbar.html now handles the sidebar toggler. #}
+    <main class="main-content">
         {% block dashboard_content %}{% endblock %} {# This block is for the specific page content (e.g., tables, forms) #}
     </main>
 {% endblock %}
 
 {# This new block defines the content for the fixed sidebar #}
 {% block sidebar_menu_content %} 
-    {# The px-4 pt-3 classes are now applied to .sidebar-inner in layout.html #}
-    <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
-        <div class="d-flex align-items-center">
-            <div class="user-avatar lg-avatar me-4">
-                <img src="{% static 'html/assets/img/user-profile.png' %}"
-                    class="card-img-top rounded-circle border-white" alt="Bonnie Green">
-            </div>
-            <div class="d-block">
-                <h2 class="h6">{{request.session.o_name.upper}}</h2>
-                <a href="#" onclick="funLogout()" class="btn btn-secondary text-dark btn-xs"><span
-                        class="me-2"><span class="fas fa-sign-out-alt"></span></span>Logout</a>
-            </div>
-        </div>
-        <div class="collapse-close d-md-none">
+    {# New: Mobile header for the sidebar. Only visible on mobile. #}
+    <div class="sidebar-mobile-header d-md-none d-flex align-items-center justify-content-between p-3">
+        <a class="navbar-brand me-lg-5" href="/org_index">
+            <lottie-player src="{% static 'html/assets/img/logo_animation.json' %}" background="transparent"
+                speed="1" style="width: 50px; height: 50px; display: inline-block; vertical-align: middle;" loop autoplay>
+            </lottie-player>
+            <span style="font-size:18px; display: inline-block; vertical-align: middle; font-weight: bold;">My Study</span> {# Changed "My Remote Desk" to "My Study" to match image #}
+        </a>
+        <div class="collapse-close">
             <a href="#sidebarMenu" class="fas fa-times" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
                 aria-controls="sidebarMenu" aria-expanded="true" aria-label="Toggle navigation"></a>
         </div>
     </div>
+    {# The user-card for mobile sidebar. #}
+    <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4 px-4">
+        <div class="d-flex align-items-center">
+            <div class="user-avatar lg-avatar me-4">
+                <img src="{% static 'html/assets/img/user-profile.png' %}"
+                    class="card-img-top rounded-circle border-white" alt="User Profile">
+            </div>
+            <div class="d-block">
+                <h2 class="h6">{{request.session.o_name.upper}}</h2>
+                <a href="#" onclick="funLogout()" class="btn btn-sm" style="background-color: rgba(255,255,255,0.1); border-color: transparent;"><span
+                        class="me-2"><span class="fas fa-sign-out-alt"></span></span>Logout</a>
+            </div>
+        </div>
+        {# Removed the collapse-close d-md-none here, it's now in sidebar-mobile-header for better structure #}
+    </div>
 
     <ul class="nav flex-column pt-3 pt-md-0">
         <li class="nav-item">
-            <h2 class="h6">Hi, {{request.session.o_name.upper}}</h2>
+            <h2 class="h6 px-4">Hi, {{request.session.o_name.upper}}</h2>
             {% if request.custom_user|has_perm:'view_active_employees_count' %}
-            <h2 class="h6" id="activeEmps"></h2>
+            <h2 class="h6 px-4" id="activeEmps"></h2>
             {% endif %}
         </li>
+
+        {# Restore Dashboard link #}
+
 
         {% if request.custom_user|has_perm:'view_permission' or request.custom_user|has_perm:'view_role' %}
         <li class="nav-item">
@@ -501,7 +455,7 @@
         </li>
         {% endif %}
 
-        <li role="separator" class="dropdown-divider mt-4 mb-3 border-black"></li>
+        <li role="separator" class="dropdown-divider mt-4 mb-3 border-white"></li>
 
         {% if request.custom_user|has_perm:'report_problems' %}
         <li class="nav-item">
@@ -522,12 +476,10 @@
         {% endif %}
 
         <li class="nav-item">
-    <a href="#" onclick="funLogout()" 
-       class="btn bg-warning text-dark w-100 d-flex align-items-center justify-content-center">
-        <span class="sidebar-icon">Logout</span>
-    </a>
-</li>
-
-
+            <a href="#" onclick="funLogout()" 
+               class="btn bg-warning text-dark w-100 d-flex align-items-center justify-content-center">
+                <span class="sidebar-icon">Logout</span>
+            </a>
+        </li>
     </ul>
-{% endblock %}
+{% endblock %} 

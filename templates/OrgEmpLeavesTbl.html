@@ -78,3 +78,80 @@
 
 
 {% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+{% load custom_perms %} {# Add this line #}
+
+<div class="row justify-content-center pt-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 border-0 p-4">
+            <h3 class="h3 text-center mb-4 text-white">View Employee Leaves</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets2.lottiefiles.com/private_files/lf30_hdiNFs.json" background="transparent" speed="1"
+                    style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            <div class="table-responsive">
+                <table id="example" class="table table-hover table-centered table-nowrap mb-0 rounded text-light-gray">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Sr No.</th>
+                            <th scope="col">Employee Name</th>
+                            <th scope="col">Leave Reason</th>
+                            <th scope="col">Leave Description</th>
+                            <th scope="col">Leave Start Date</th>
+                            <th scope="col">Number of Days</th>
+                            <th scope="col">Leave Approval Status</th>
+                            {% if request.custom_user|has_perm:'manage_employee_leaves' %} {# <-- This permission check #}
+                            <th scope="col">Update</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}    
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ leave.e_id.e_name.upper }}</td>
+                            <td>{{leave.l_reason}}</td>
+                            <td>{{leave.l_desc}}</td>
+                            <td>{{leave.l_start_date}}</td>
+                            <td>{{leave.l_no_of_leaves}}</td>
+                            <form action="{% url 'org-emp-leave-approval' leave.id  %}" method="POST">
+                                {% csrf_token %}
+                                <td>
+                                    <div class="form-group">
+                                        <select name="l_status" class="form-control" id="leaveStatus" required>
+                                            <option value="Approved" {% if leave.l_status == 'Approved' %}selected{% endif %}>Approved</option>
+                                            <option value="Rejected" {% if leave.l_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                            <option value="Pending" {% if leave.l_status == 'Pending' %}selected{% endif %}>Pending</option> {# Added Pending option for completeness #}
+                                        </select>
+                                    </div>
+                                </td>
+                                {% if request.custom_user|has_perm:'manage_employee_leaves' %} {# <-- This permission check #}
+                                <td><button type="submit" class="btn btn-primary btn-sm">Update</button></td>
+                                {% endif %}
+                            </form>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No leave requests found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+    });
+</script>
+{% endblock %} {% endcomment %}
+

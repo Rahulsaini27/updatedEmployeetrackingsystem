@@ -3,83 +3,192 @@
 <main>
     <section class="d-flex align-items-center my-5 mt-lg-6 mb-lg-5">
         <div class="container">
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="bg-white p-4 p-lg-5 w-100 fmxw-1000">
-                    <div class="text-center text-md-center mb-4 mt-md-0">
-                        <h1 class="mb-0 h3">FAQ's</h1>
-                    </div>
-                    <img src="/static/html/assets/img/questions_desc.png">
-                    
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="card shadow rounded-4 border-0 p-4 p-lg-5">
+                        <div class="text-center mb-4 mt-md-0">
+                            <h1 class="mb-0 h3">FAQ's</h1>
+                        </div>
+                        <div class="d-flex justify-content-center mb-4">
+                            <img class="img-fluid" src="/static/html/assets/img/questions_desc.png" alt="Questions Illustration" style="max-width: 350px; height: auto;">
+                        </div>
 
-                    <div class="container" id="test">
-                        <div class="card-body">
-                            <div class="qanda">
-                                <h5>
-                                    Are there any privacy concerns?</h5>
-                                <hr>
-                                <p>
-                                    The software does not monitor anything on someone’s computer when they’re on a break or when they’re not working. So even people working from home can be comfortable knowing that they are not being monitored during their own time. Our position on privacy is that a company has the right to know what employees are doing during work hours, and have no right at all to know what they’re doing during breaks or after working.
-                                 </p>
+                        <div class="accordion" id="faqAccordion"> {# Using Bootstrap Accordion for FAQs #}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                        Are there any privacy concerns?
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        The software does not monitor anything on someone’s computer when they’re on a break or when they’re not working. So even people working from home can be comfortable knowing that they are not being monitored during their own time. Our position on privacy is that a company has the right to know what employees are doing during work hours, and have no right at all to know what they’re doing during breaks or after working.
+                                    </div>
+                                </div>
                             </div>
-                            <div class="qanda">
-                                <h5>
-                                    Is this software intrusive? </h5>
-                                <hr>
-                                <p>
-                                   We believe that the employer has the right to know what their employees are doing while working, and has no right to know what they are doing when they’re not working. The software doesn’t track any activity when someone is not working (on a break etc). This is in fact less invasive than similar software which monitors all computer use and doesn’t distinguish the difference between working and non-working time. </p>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        Is this software intrusive?
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        We believe that the employer has the right to know what their employees are doing while working, and has no right to know what they are doing when they’re not working. The software doesn’t track any activity when someone is not working (on a break etc). This is in fact less invasive than similar software which monitors all computer use and doesn’t distinguish the difference between working and non-working time.
+                                    </div>
+                                </div>
                             </div>
-                            <div class="qanda">
-                                <h5>
-                                    I don't need to "monitor" my team. Is there any benefit to this software?</h5>
-                                <hr>
-                                <p>
-                                    Absolutely. About 20% of the benefits of the software come from the monitoring features. The other 80% come from empowering your staff to manage their own time more effectively, and from providing you with higher-level insights into how time is spent in your organization. These insights will enable to you improve processes in your business so that it runs more efficiently.
-
-                                    For example one major benefit is the ability to know not only which specific tasks your employees are working on, but also how much time is being spent on which projects/clients across your company. This allows for better future allocation of time, improves communication with your team, reduces the time spent in unnecessary meetings and a host of other benefits.
-                                     </p>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                        I don't need to "monitor" my team. Is there any benefit to this software?
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Absolutely. About 20% of the benefits of the software come from the monitoring features. The other 80% come from empowering your staff to manage their own time more effectively, and from providing you with higher-level insights into how time is spent in your organization. These insights will enable to you improve processes in your business so that it runs more efficiently. For example one major benefit is the ability to know not only which specific tasks your employees are working on, but also how much time is being spent on which projects/clients across your company. This allows for better future allocation of time, improves communication with your team, reduces the time spent in unnecessary meetings and a host of other benefits.
+                                    </div>
+                                </div>
                             </div>
-
-                            <div class="qanda">
-                                <h5>
-                                    
-                                    Is employee monitoring legal?
-
-                                 <hr>
-                                <p>
-                                    In most jurisdictions employee monitoring is legal with no restrictions. However, there may be restrictions on what employee activities you monitor or record. Please consult your legal counsel to ensure you are implementing employee monitoring within the legal and regulatory guidelines applicable to your organization and jurisdiction. MyRemoteDesk is fully customizable with respect to its monitoring and recording features to abide by any legal, ethical or regulatory restrictions.
-                                 </p>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingFour">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                        Is employee monitoring legal?
+                                    </button>
+                                </h2>
+                                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        In most jurisdictions employee monitoring is legal with no restrictions. However, there may be restrictions on what employee activities you monitor or record. Please consult your legal counsel to ensure you are implementing employee monitoring within the legal and regulatory guidelines applicable to your organization and jurisdiction. MyRemoteDesk is fully customizable with respect to its monitoring and recording features to abide by any legal, ethical or regulatory restrictions.
+                                    </div>
+                                </div>
                             </div>
-
-
-                            <div class="qanda">
-                                <h5>
-                                    How can I turn monitoring on/off for a user or group?
-                                 <hr>
-                                <p>
-                                    You can turn monitoring on/off for a user or computer by simply clicking Start and Stop respectively on desktop app.
-                                 </p>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingFive">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                        How can I turn monitoring on/off for a user or group?
+                                    </button>
+                                </h2>
+                                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        You can turn monitoring on/off for a user or computer by simply clicking Start and Stop respectively on desktop app.
+                                    </div>
+                                </div>
                             </div>
-
-
-
-                            <div class="qanda">
-                                <h5>
-                                    How can I measure employee productivity?
-                                     <hr>
-                                <p>
-                                    Through MyRemoteDesk’s comprehensive dashboards and employee analytics, employers are given invaluable insight into productivity and daily workloads .    
-                                </p>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingSix">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                        How can I measure employee productivity?
+                                    </button>
+                                </h2>
+                                <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Through MyRemoteDesk’s comprehensive dashboards and employee analytics, employers are given invaluable insight into productivity and daily workloads.
+                                    </div>
+                                </div>
                             </div>
-
-
-
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
     </section>
 </main>
 {% endblock %}
+{% comment %} {% extends 'layout.html' %}
+{% block page_content  %}
+<main>
+    <section class="d-flex align-items-center my-5 mt-lg-6 mb-lg-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="card shadow rounded-4 border-0 p-4 p-lg-5">
+                        <div class="text-center mb-4 mt-md-0">
+                            <h1 class="mb-0 h3 text-white">FAQ's</h1>
+                        </div>
+                        <div class="d-flex justify-content-center mb-4">
+                            <img class="img-fluid" src="{% static 'html/assets/img/questions_desc.png' %}" alt="Questions Illustration" style="max-width: 350px; height: auto;">
+                        </div>
+
+                        <div class="accordion" id="faqAccordion"> {# Using Bootstrap Accordion for FAQs #}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button collapsed text-white bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                        Are there any privacy concerns?
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-light-gray">
+                                        The software does not monitor anything on someone’s computer when they’re on a break or when they’re not working. So even people working from home can be comfortable knowing that they are not being monitored during their own time. Our position on privacy is that a company has the right to know what employees are doing during work hours, and have no right at all to know what they’re doing during breaks or after working.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button collapsed text-white bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        Is this software intrusive?
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-light-gray">
+                                        We believe that the employer has the right to know what their employees are doing while working, and has no right to know what they are doing when they’re not working. The software doesn’t track any activity when someone is not working (on a break etc). This is in fact less invasive than similar software which monitors all computer use and doesn’t distinguish the difference between working and non-working time.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button collapsed text-white bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                        I don't need to "monitor" my team. Is there any benefit to this software?
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-light-gray">
+                                        Absolutely. About 20% of the benefits of the software come from the monitoring features. The other 80% come from empowering your staff to manage their own time more effectively, and from providing you with higher-level insights into how time is spent in your organization. These insights will enable to you improve processes in your business so that it runs more efficiently. For example one major benefit is the ability to know not only which specific tasks your employees are working on, but also how much time is being spent on which projects/clients across your company. This allows for better future allocation of time, improves communication with your team, reduces the time spent in unnecessary meetings and a host of other benefits.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingFour">
+                                    <button class="accordion-button collapsed text-white bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                        Is employee monitoring legal?
+                                    </button>
+                                </h2>
+                                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-light-gray">
+                                        In most jurisdictions employee monitoring is legal with no restrictions. However, there may be restrictions on what employee activities you monitor or record. Please consult your legal counsel to ensure you are implementing employee monitoring within the legal and regulatory guidelines applicable to your organization and jurisdiction. MyRemoteDesk is fully customizable with respect to its monitoring and recording features to abide by any legal, ethical or regulatory restrictions.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingFive">
+                                    <button class="accordion-button collapsed text-white bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                        How can I turn monitoring on/off for a user or group?
+                                    </button>
+                                </h2>
+                                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-light-gray">
+                                        You can turn monitoring on/off for a user or computer by simply clicking Start and Stop respectively on desktop app.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingSix">
+                                    <button class="accordion-button collapsed text-white bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                        How can I measure employee productivity?
+                                    </button>
+                                </h2>
+                                <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-light-gray">
+                                        Through MyRemoteDesk’s comprehensive dashboards and employee analytics, employers are given invaluable insight into productivity and daily workloads.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+ {% endcomment %}

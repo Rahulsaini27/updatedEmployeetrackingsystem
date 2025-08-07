@@ -1,82 +1,152 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
-<div class="row align-items-center d-flex  justify-content-center">
-    <div class="col-12 mb-4">
-        <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
-            <div class="card-body align-items-center d-flex justify-content-center">
-                <div class="row mb-4">
-                    <div class="col-lg-12 col-sm-16">
-                        <h3 class="h3 text-center">Add Meeting</h3>
-                    </div>
-                    <div class="card-body">
-                        {% if msg1 is not none and msg1 %}
-                        <img src="/static/html/assets/img/undraw_schedule_meeting_52nu.png" width="250px" height="300px">
-                        <form action="/create-meet" method="POST">
-                            {% csrf_token %}
-                            <div class="mb-4">
-                                <div class="form-group">
-                                    <label class="h6" for="exampleFormControlTextarea1">Meet Name:</label>
-                                    <input type="text" name="m_name" class="form-control" placeholder="Name of Meeting"
-                                        required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="h6" for="exampleFormControlTextarea1">Meet Description:</label>
-                                    <input type="text" name="m_desc" class="form-control"
-                                        placeholder="Description of Meeting" required>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group col-6">
-                                        <label class="h6" for="exampleFormControlTextarea1">Start Date:</label>
-                                        <input type="date" name="start_date" class="form-control" id="date1" required>
-                                    </div>
-                                    <div class="form-group col-6">
-                                        <label class="h6" for="exampleFormControlTextarea1">Start Time:</label>
-                                        <input type="time" name="start_time" class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group col-6">
-                                        <label class="h6" for="exampleFormControlTextarea1">Stop Date:</label>
-                                        <input type="date" name="stop_date" class="form-control" id="date2" required>
-                                    </div>
-                                    <div class="form-group col-6">
-                                        <label class="h6" for="exampleFormControlTextarea1">Stop Time:</label>
-                                        <input type="time" name="stop_time" class="form-control" required>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="my-1 mr-2" for="livebox1">Choose Project:</label>
-                                    <select class="custom-select my-1 mr-sm-2" id="livebox1" name="p_id" required>
-                                        {% for test1 in msg1 %}
-                                        <option value={{test1.id}}>{{test1.p_name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <input type="submit" class="btn btn-primary" value="Add">
-                        </form>
-                        {% else %}
-                        <div class="col-lg-12 col-sm-16">
-                            <center>
-                                <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
-                                    background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
-                                </lottie-player>
-                            </center>
-                            <h3 class="h3 text-center">
-                                You can't create meeting, for creating meeting you need at least one project created!
-                            </h3>
-                        </div>
-                        {% endif %}
-                    </div>
+<div class="row justify-content-center pt-4"  > {# Simplified outer row for centering #}
+    <div class="col-12 col-md-8 col-lg-6 mb-4"> {# Column for the card #}
+        <div class="card shadow rounded-4 border-0" style="background-color: #37474F;"> {# Consistent card styling #}
+            <div class="card-body p-5"> {# Ample padding #}
+                <h3 class="h3 text-center mb-4 text-white">Add Meeting</h3>
+                {% if msg1 is not none and msg1 %}
+                <div class="d-flex justify-content-center mb-4"> {# Centering for image #}
+                    <img class="img-fluid" src="/static/html/assets/img/undraw_schedule_meeting_52nu.png" alt="Schedule Meeting Illustration" style="max-width: 300px; height: auto;"> {# Make img-fluid and set max-width #}
                 </div>
+                <form action="/create-meet" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="form-group mb-3">
+                            <label class="form-label text-white" for="meetName">Meet Name:</label> {# Using form-label consistently #}
+                            <input type="text" name="m_name" class="form-control" id="meetName" placeholder="Name of Meeting" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label text-white" for="meetDesc">Meet Description:</label>
+                            <input type="text" name="m_desc" class="form-control" id="meetDesc" placeholder="Description of Meeting" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"> {# Consistent mb-3 for form groups #}
+                                <label class="form-label text-white" for="startDate">Start Date:</label>
+                                <input type="date" name="start_date" class="form-control" id="startDate" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white" for="startTime">Start Time:</label>
+                                <input type="time" name="start_time" class="form-control" id="startTime" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white" for="stopDate">Stop Date:</label>
+                                <input type="date" name="stop_date" class="form-control" id="stopDate" required>
+                            </div>
+                            <div class="col-md-6 mb-4 text-white"> {# mb-4 for final form group before button #}
+                                <label class="form-label" for="stopTime">Stop Time:</label>
+                                <input type="time" name="stop_time" class="form-control" id="stopTime" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label text-white" for="projectSelect">Choose Project:</label>
+                            <select class="form-control" id="projectSelect" name="p_id" required> {# Using form-control #}
+                                {% for test1 in msg1 %}
+                                <option value={{test1.id}}>{{test1.p_name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-grid"> {# Full width button #}
+                        <button type="submit" class="btn btn-primary btn-lg ">Add</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="text-center"> {# Centered for no records found #}
+                    <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                        background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                    </lottie-player>
+                    <h3 class="h3 text-center">
+                        You can't create meeting, for creating meeting you need at least one project created!
+                    </h3>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 <script>
     var date = new Date().toISOString().slice(0, 10);
-    $('#date1').attr('min', date);
-    $('#date2').attr('min', date);
+    $('#startDate').attr('min', date);
+    $('#stopDate').attr('min', date);
 </script>
 {% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+<div class="row justify-content-center pt-4"> {# Simplified outer row for centering #}
+    <div class="col-12 col-md-8 col-lg-6 mb-4"> {# Column for the card #}
+        <div class="card shadow rounded-4 border-0"> {# Consistent card styling #}
+            <div class="card-body p-5"> {# Ample padding #}
+                <h3 class="h3 text-center mb-4">Add Meeting</h3>
+                {% if msg1 is not none and msg1 %}
+                <div class="d-flex justify-content-center mb-4"> {# Centering for image #}
+                    <img class="img-fluid" src="/static/html/assets/img/undraw_schedule_meeting_52nu.png" alt="Schedule Meeting Illustration" style="max-width: 300px; height: auto;"> {# Make img-fluid and set max-width #}
+                </div>
+                <form action="/create-meet" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="meetName">Meet Name:</label> {# Using form-label consistently #}
+                            <input type="text" name="m_name" class="form-control" id="meetName" placeholder="Name of Meeting" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="meetDesc">Meet Description:</label>
+                            <input type="text" name="m_desc" class="form-control" id="meetDesc" placeholder="Description of Meeting" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"> {# Consistent mb-3 for form groups #}
+                                <label class="form-label" for="startDate">Start Date:</label>
+                                <input type="date" name="start_date" class="form-control" id="startDate" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="startTime">Start Time:</label>
+                                <input type="time" name="start_time" class="form-control" id="startTime" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="stopDate">Stop Date:</label>
+                                <input type="date" name="stop_date" class="form-control" id="stopDate" required>
+                            </div>
+                            <div class="col-md-6 mb-4"> {# mb-4 for final form group before button #}
+                                <label class="form-label" for="stopTime">Stop Time:</label>
+                                <input type="time" name="stop_time" class="form-control" id="stopTime" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="projectSelect">Choose Project:</label>
+                            <select class="form-control" id="projectSelect" name="p_id" required> {# Using form-control #}
+                                {% for test1 in msg1 %}
+                                <option value={{test1.id}}>{{test1.p_name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-grid"> {# Full width button #}
+                        <button type="submit" class="btn btn-primary btn-lg">Add</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="text-center"> {# Centered for no records found #}
+                    <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                        background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                    </lottie-player>
+                    <h3 class="h3 text-center">
+                        You can't create meeting, for creating meeting you need at least one project created!
+                    </h3>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var date = new Date().toISOString().slice(0, 10);
+    $('#startDate').attr('min', date);
+    $('#stopDate').attr('min', date);
+</script>
+{% endblock %} {% endcomment %}

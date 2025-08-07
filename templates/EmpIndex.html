@@ -1,36 +1,40 @@
 {% extends 'EmpDashboard.html' %}
 {% block dashboard_content  %} {# CHANGED THIS LINE #}
-<div class="container">
-    <div class="col-12 d-flex align-items-center justify-content-center">
-        <div class="bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-100 fmxw-650">
-            <center>
-                <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_wEt2nn.json" background="transparent"
-                    speed="1" style="width: 500px; height: 300px;" loop autoplay></lottie-player>
-            </center>
-            <div class="text-center text-md-center mb-4 mt-md-0">
-                <h4 class="mb-0 4">Welcome to MyRemoteDesk</h4>
-                <br>
-                <h1 class="mb-0 h3">Hi, {{request.session.u_name|upper}}</h1>
+<div class="container py-5"> {# Added py-5 for vertical padding #}
+    <div class="row justify-content-center"> {# Using row justify-content-center for horizontal centering #}
+        <div class="col-12 col-md-10 col-lg-8"> {# Adjusted column size for better responsiveness #}
+            <div class="card shadow rounded-4 border-0 p-4 p-lg-5"> {# Consistent card styling #}
+                <div class="d-flex justify-content-center mb-4"> {# Centering Lottie player #}
+                    <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_wEt2nn.json" background="transparent"
+                        speed="1" style="width: 300px; height: 250px;" loop autoplay></lottie-player> {# Adjusted size slightly for consistency #}
+                </div>
+                <div class="text-center"> {# Centered text content #}
+                    <h4 class="mb-2 text-gray-700">Welcome to MyRemoteDesk</h4> {# Adjusted text color and margin #}
+                    <h1 class="display-4 fw-bolder text-primary">{{request.session.u_name|upper}}</h1> {# Larger, bolder welcome message #}
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %} {# CHANGED THIS LINE #}
+{% endblock %} 
 {% comment %} {% extends 'EmpDashboard.html' %}
-{% block body %}
-<div class="container">
-    <div class="col-12 d-flex align-items-center justify-content-center">
-        <div class="bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-100 fmxw-650">
-            <center>
-                <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_wEt2nn.json" background="transparent"
-                    speed="1" style="width: 500px; height: 300px;" loop autoplay></lottie-player>
-            </center>
-            <div class="text-center text-md-center mb-4 mt-md-0">
-                <h4 class="mb-0 4">Welcome to MyRemoteDesk</h4>
-                <br>
-                <h1 class="mb-0 h3">Hi, {{request.session.u_name|upper}}</h1>
+{% block dashboard_content  %} {# CHANGED THIS LINE #}
+<div class="container py-5"> {# Added py-5 for vertical padding #}
+    <div class="row justify-content-center"> {# Using row justify-content-center for horizontal centering #}
+        <div class="col-12 col-md-10 col-lg-8"> {# Adjusted column size for better responsiveness #}
+            <div class="card shadow rounded-4 border-0 p-4 p-lg-5"> {# Consistent card styling #}
+                <div class="d-flex justify-content-center mb-4"> {# Centering Lottie player #}
+                    <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_wEt2nn.json" background="transparent"
+                        speed="1" style="width: 300px; height: 250px;" loop autoplay></lottie-player> {# Adjusted size slightly for consistency #}
+                </div>
+                <div class="text-center"> {# Centered text content #}
+                    <h4 class="mb-2 text-light-gray">Welcome to MyRemoteDesk</h4> {# Adjusted text color and margin #}
+                    <h1 class="display-4 fw-bolder text-primary">{{request.session.u_name|upper}}</h1> {# Larger, bolder welcome message #}
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %} {% endcomment %}
+{% endblock %}
+
+ {% endcomment %}

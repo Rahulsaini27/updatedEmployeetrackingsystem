@@ -1,4 +1,55 @@
 {% extends 'OrgDashboard.html' %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0">
+            <div class="card-body p-5">
+                <h3 class="h3 text-center mb-4">Select Employee to View Logs</h3>
+
+                {% if msg is not none and msg %}
+                <div class="d-flex justify-content-center mb-4">
+                    <img class="img-fluid" src="/static/html/assets/img/undraw_Selecting_team_re_ndkb.png" alt="Selecting Team" style="max-width: 300px; height: auto;">
+                </div>
+
+                <form action="/power-monitoring" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="form-group mb-3">
+                            <label for="livebox2" class="form-label">Choose Employee:</label>
+                            <select class="form-control" id="livebox2" name="e_id" required>
+                                {% for test1 in msg %}
+                                <option value="{{ test1.id }}">{{ test1.e_name.upper }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="dateLog" class="form-label">Date:</label>
+                            <input type="date" name="date_log" id="dateLog" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">View</button>
+                    </div>
+                </form>
+
+                {% else %}
+                <div class="text-center">
+                    <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                        background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                    </lottie-player>
+                    <h3 class="h3 text-center mt-3">No Records Found!</h3>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %} {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
@@ -47,4 +98,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

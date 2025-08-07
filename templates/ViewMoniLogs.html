@@ -1,5 +1,61 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 border-0 p-4">
+            <h3 class="h3 text-center mb-4">View Employee Monitoring Logs</h3>
+            
+            {% if msg is not none and msg %}
+            <div class="table-responsive">
+                <table id="exampleMoni" class="table table-hover table-centered table-nowrap mb-0 rounded">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Sr. No.</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Time Stamp</th>
+                            <th scope="col">Employee</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in msg %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ result.m_title }}</td>
+                            <td>{{ result.m_log_ts }}</td>
+                            <td>{{ result.employee.e_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center">
+                <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                    background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                </lottie-player>
+                <h3 class="h3 text-center">
+                    No Records Found!
+                </h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#exampleMoni').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+    });
+</script>
+{% endblock %}
+
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -57,4 +113,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

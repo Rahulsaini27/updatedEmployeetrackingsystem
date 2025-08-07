@@ -1,5 +1,73 @@
 {% extends 'EmpDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0">
+            <div class="card-body p-5">
+                <h3 class="h3 text-center mb-4">View Attendance</h3>
+                <div class="d-flex justify-content-center mb-4">
+                    <lottie-player src="https://assets5.lottiefiles.com/packages/lf20_9chjsupe.json"
+                        background="transparent" speed="1" style="width: 300px; height: 250px;" loop autoplay>
+                    </lottie-player>
+                </div>
+                <form action="/user-view-attendance" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="dateLog">Date:</label>
+                            <input type="date" name="date_log" class="form-control" id="dateLog" value='2022-03-17' required>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">View</button>
+                    </div>
+                </form>
+                {% if attendance_logs is not none and attendance_logs %}
+                <div class="mt-5">
+                    <div class="card border-light shadow-sm rounded-3 p-4">
+                        <h4 class="h5 mb-3">Attendance Details</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>Date:</strong> <span>{{attendance_logs.0}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>Login at:</strong> <span>{{logged_in_time}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>Logout at:</strong> <span>{{logged_out_time}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>IP Address:</strong> <span>{{attendance_logs.1}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>Timezone:</strong> <span>{{attendance_logs.2}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>Latitude/Longitude:</strong> <span>{{attendance_logs.3}} / {{attendance_logs.4}}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>Total time logged in:</strong> <span>{{total_time_logged}} hours</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center mt-5">
+                    <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                        background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                    </lottie-player>
+                    <h3 class="h3 text-center">
+                        No Records Found!
+                    </h3>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% comment %} {% extends 'EmpDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -68,4 +136,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

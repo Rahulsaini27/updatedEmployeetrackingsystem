@@ -82,6 +82,91 @@
     });
 </script>
 {% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content  %}
+{% load custom_perms %} {# Add this line #}
+<div class="row align-items-center d-flex  justify-content-center">
+    <div class="col-12 mb-4">
+        <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
+            <div class="card-body align-items-center d-flex justify-content-center">
+                <div class="row mb-4">
+                    {% if msg is not none and msg %}
+                    <div class="col-lg-12 col-sm-16">
+                        <h3 class="h3 text-center text-white">Update Employees</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="example" class="display nowrap table text-light-gray" style="width:100%">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Sr No</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Gender</th>
+                                    {# Conditional column headers #}
+                                    {% if request.custom_user|has_perm:'update_employee' %}
+                                    <th scope="col">Update</th>
+                                    {% endif %}
+                                    {% if request.custom_user|has_perm:'delete_employee' %}
+                                    <th scope="col">Delete</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in msg %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{result.e_name|upper}}</td>
+                                    <td>{{result.e_gender|upper}}</td>
+                                    {# Conditional buttons #}
+                                    {% if request.custom_user|has_perm:'update_employee' %}
+                                    <td>
+                                        <form action="/update-emp/{{result.id}}" method="GET">
+                                            {% csrf_token %}
+                                            <button class="btn btn-secondary">Update</button>
+                                        </form>
+                                    </td>
+                                    {% endif %}
+                                    {% if request.custom_user|has_perm:'delete_employee' %}
+                                    <td>
+                                        <form action="/del-emp/{{result.id}}" method="POST">
+                                            {% csrf_token %}
+                                            <button class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="col-lg-12 col-sm-16 text-light-gray">
+                        <center>
+                            <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                                background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                            </lottie-player>
+                        </center>
+                        <h3 class="h3 text-center text-white">
+                            No Records Found!
+                        </h3>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+    });
+</script>
+{% endblock %} {% endcomment %}
+
 
 {% comment %} {% extends 'OrgDashboard.html' %}
 {% block body %}
@@ -155,4 +240,4 @@
         });
     });
 </script>
-{% endblock %} {% endcomment %}
+{% endblock %} {% endcomment %} {% endcomment %}

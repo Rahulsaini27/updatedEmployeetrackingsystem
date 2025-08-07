@@ -1,5 +1,39 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0">
+            <div class="card-body p-5">
+                <h3 class="text-center mb-4">Add Work Productivity Dataset</h3>
+                <div class="d-flex justify-content-center mb-4">
+                    <img class="img-fluid" src="{% static 'html/assets/img/undraw_data_processing_yrrv.png' %}" alt="Data Processing Illustration" style="max-width: 300px; height: auto;">
+                </div>
+                <form action="/create-wp" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="wpds">Add Work Productivity App/Website:</label>
+                            <input type="text" name="wp_ds" class="form-control" id="wpds" placeholder="Add Work Productivity App/Website" required>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="wpType">Type:</label>
+                            <select class="form-control" id="wpType" name="wp_type" required>
+                                <option value="1">Productive</option>
+                                <option value="0">Unproductive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -35,4 +69,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %}  {% endcomment %}

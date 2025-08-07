@@ -1,5 +1,68 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0 p-5">
+            <h3 class="h3 text-center mb-4">Update Employee</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_2jbzmbru.json"
+                    background="transparent" speed="1" style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            <h4 class="h5 text-center mb-4 text-primary">{{emp_detail.e_name.upper}}</h4> {# Emphasize employee name #}
+            <form action="/update-emp/{{emp_detail.id}}" method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="fullName">Full Name:</label>
+                        <input value="{{emp_detail.e_name}}" type="text" name="e_name" class="form-control"
+                            id="fullName" placeholder="Name of Employee" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="emailAddress">Email Address:</label>
+                        <input value="{{emp_detail.e_email}}" type="email" name="e_email"
+                            class="form-control" id="emailAddress" placeholder="Email of Employee" readonly>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="roleSelect">Assign Role:</label>
+                        <select class="form-control" name="role_id" id="roleSelect">
+                            <option value="">-- Select Role --</option>
+                            {% for role in roles %}
+                                <option value="{{ role.id }}" {% if emp_detail.role.id == role.id %}selected{% endif %}>
+                                    {{ role.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="contactNumber">Contact Number:</label>
+                        <input value="{{emp_detail.e_contact}}" type="number" name="e_contact"
+                            class="form-control" id="contactNumber" placeholder="Contact of Employee" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="genderSelect">Choose Gender of Employee:</label>
+                        <select class="form-control" id="genderSelect" name="e_gender" required>
+                            <option value="male" {%if 'male' in emp_detail.e_gender %}selected{%endif%}>Male</option>
+                            <option value="female" {%if 'female' in emp_detail.e_gender %}selected{%endif%}>Female</option>
+                            <option value="transgender" {%if 'transgender' in emp_detail.e_gender %}selected{%endif%}>Transgender</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="employeeAddress">Address of Employee</label>
+                        <textarea name="e_address" class="form-control" id="employeeAddress" placeholder="Address of Employee"
+                            rows="6" required>{{emp_detail.e_address}}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -70,4 +133,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}  {% endcomment %}

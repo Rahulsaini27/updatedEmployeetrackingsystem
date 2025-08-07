@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -29,10 +30,20 @@
 
   <style>
     :root {
-        --navbar-height: 56px; /* Standard Bootstrap navbar height */
-        --sidebar-width-desktop: 450px; /* Adjusted width for desktop sidebar - WAS 250px */
+        --navbar-height: 56px; /* Standard Bootstrap navbar height, will be updated by JS */
+        --messages-height: 0px; /* Dynamic height for messages container, updated by JS */
+        --header-total-height: var(--navbar-height); /* Combined height of navbar and messages, updated by JS */
+        --sidebar-width-desktop: 350px; /* Adjusted to be slightly narrower to match image better */
         --sidebar-max-width-mobile: 300px; /* Max width for mobile sidebar */
-        --sidebar-brand-height: 70px; /* Approximate height for the sidebar brand area */
+
+        /* --- Custom Color Variables from Design Image (FINAL) --- */
+        --primary-purple: #37474F; /* Dark Greyish Blue - main sidebar/navbar */
+        --light-purple: #F48FB1; /* Light Pink - active sidebar item */
+        --accent-blue: #FF4081; /* Vibrant Pink/Red - accents, specific elements */
+        --text-light: #FFFFFF; /* White text on dark backgrounds */
+        --text-dark: #212121; /* Very Dark Grey - text on light backgrounds */
+        --bg-light-grey: #F8F9FA; /* Very Light Grey - overall page background */
+        --card-bg-white: #FFFFFF; /* White - background for cards/content blocks */
     }
 
     /* Make body a flex container to push footer to bottom */
@@ -40,23 +51,74 @@
         display: flex;
         flex-direction: column;
         min-height: 100vh; /* Minimum height of the viewport */
-        background-color: white;
+        background-color: var(--bg-light-grey); /* Overall body background */
         overflow-x: hidden; /* Prevent horizontal scroll from hidden sidebar */
+        padding-top: var(--header-total-height); /* Dynamic padding to push content below fixed header */
+        transition: padding-top 0.3s ease; /* Smooth transition when messages appear/disappear */
     }
 
-    /* Main application header (main navbar) */
+    /* Main application header (global navbar) */
     .header-global {
-        position: sticky; /* Make it sticky so it stays at top when scrolling, but moves with content if body itself scrolls */
+        position: fixed; /* Changed to fixed to always stay at top */
         top: 0;
         width: 100%;
         z-index: 1060; /* Higher than messages and sidebar */
-        background-color: white; /* Ensure background to cover content when sticky */
         box-shadow: 0 2px 4px rgba(0,0,0,.05); /* Optional: subtle shadow */
     }
 
+    /* Styles for the main top navbar */
+    .navbar-main {
+        background-color: var(--primary-purple) !important; /* Apply primary purple background */
+        color: var(--text-light); /* Set default text color to white for better contrast */
+    }
+
+    /* Ensure all nav-links and icons within the main navbar are white */
+    .navbar-main .nav-link,
+    .navbar-main .navbar-brand span, /* For brand text if any, adjusted to affect span for image alignment */
+    .navbar-main .navbar-toggler-icon .fas,
+    .navbar-main .nav-link .fas { /* For icons in nav links */
+        color: var(--text-light) !important;
+    }
+    
+    /* Navbar links on hover/focus */
+    .navbar-main .nav-link:hover,
+    .navbar-main .nav-link:focus {
+        color: rgba(255, 255, 255, 0.75) !important; /* Slightly fade on hover */
+    }
+
+    /* For dropdown menu itself (it's usually white background with dark text) */
+    .navbar-main .dropdown-menu {
+        background-color: var(--card-bg-white); /* White background for dropdown menu */
+        border-color: rgba(0,0,0,.15);
+        /* Ensure dropdown is visible above other content */
+        z-index: 1061; /* Higher than navbar itself if dropdown is within overflow:hidden parent */
+    }
+
+    .navbar-main .dropdown-item {
+        color: var(--text-dark) !important; /* Dark text for dropdown items */
+    }
+
+    .navbar-main .dropdown-item:hover,
+    .navbar-main .dropdown-item:focus {
+        background-color: var(--bg-light-grey); /* Light grey on hover for dropdown items */
+        color: var(--text-dark) !important;
+    }
+
+    /* Specific logout button styling within navbar */
+    .navbar-main .nav-item .btn.btn-secondary { /* Target by btn-secondary, not text-dark as that class is removed */
+        background-color: rgba(255, 255, 255, 0.1); /* Subtle background for button */
+        border-color: transparent; /* No border */
+        color: var(--text-light) !important; /* White text */
+    }
+
+    .navbar-main .nav-item .btn.btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.2); /* Slightly darker on hover */
+    }
+
+
     /* Messages container - fixed just below the main navbar */
     .messages-container {
-        position: sticky; /* Sticky here to stick below the main navbar, moves with scroll if main content area overflows viewport */
+        position: fixed; /* Changed to fixed for constant positioning */
         top: var(--navbar-height); /* Sticks right below the main navbar */
         left: 0;
         width: 100%;
@@ -76,13 +138,13 @@
 
     /* Sidebar styles */
     .sidebar {
-        position: fixed; /* Fixed position relative to viewport for mobile */
-        top: 0; /* Starts from the very top for mobile, covered by main navbar normally */
+        position: fixed; /* Fixed position relative to viewport */
+        top: var(--header-total-height); /* Dynamic top based on combined header height */
         bottom: 0; /* Extends to the bottom of the viewport */
         left: 0; /* Aligned to the left edge */
         z-index: 1020; /* Below main fixed navbar, above main content area */
-        background-color: white; /* Changed from #343a40; */
-        color: #212529; /* Changed from #fff, equivalent to Bootstrap's text-dark */
+        background-color: var(--primary-purple); /* Changed from white to primary purple */
+        color: var(--text-light); /* Set default text color to white */
         width: 75vw; /* Default width for mobile (percentage of viewport width) */
         max-width: var(--sidebar-max-width-mobile); /* Max width for mobile sidebar */
         transform: translateX(-100%); /* Hidden off-screen by default on mobile */
@@ -92,29 +154,12 @@
         box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15); /* Added shadow for visual separation */
     }
 
-    /* Mobile specific sidebar header / brand area */
-    .sidebar .sidebar-mobile-header {
-    height: calc(100vh - var(--navbar-height));
-        display: flex;
-        align-items: center;
-        padding: 0 1rem; /* Adjust padding as needed */
-        background-color: white; /* White background to match main navbar */
-        border-bottom: 1px solid rgba(0,0,0,.05); /* Optional: subtle border */
-        color: #343a40; /* Dark text for visibility on white background */
-        font-weight: bold;
-    }
-    .sidebar .sidebar-mobile-header .lottie-player {
-        margin-right: 0.5rem; /* Space between logo and text */
-    }
-
-
     /* Ensure the inner content of the sidebar takes full height and manages its own overflow */
     .sidebar .sidebar-inner {
         flex-grow: 1; /* Allows the inner content to take up available vertical space */
         overflow-y: auto; /* Enables scrolling for the sidebar content */
-        /* No padding-top here as the header handles top space */
-        padding: 1rem; /* General padding for menu items */
-        padding-top: 0; /* Remove top padding if header is within sidebar-inner */
+        padding: 1rem 0.5rem; /* General padding for menu items, slightly adjusted */
+        padding-top: 1rem; /* Adjust top padding */
         padding-bottom: 20px; /* Add some bottom padding as well */
     }
 
@@ -134,15 +179,35 @@
         z-index: 1010; /* Below sidebar, above main content area */
         display: none; /* Hidden by default */
     }
-.sidebar .nav-link:hover,
-.sidebar .nav-link:focus,
-.sidebar .nav-link:active,
-.sidebar .nav-link.active {
-    color: #212529 !important;
-    background-color: transparent !important;  /* Remove hover background */
-    border-radius: 0 !important;               /* Remove rounding */
-}
 
+    /* Force all text and icons in the sidebar to be white by default */
+    .sidebar .nav-link,
+    .sidebar .nav-link .sidebar-icon,
+    .sidebar .nav-link .sidebar-text,
+    .sidebar .nav-item h2.h6,
+    .sidebar .user-card h2.h6,
+    .sidebar .user-card .btn, /* Target the button within user-card specifically */
+    .sidebar .nav-link .link-arrow .fas,
+    .sidebar .multi-level .nav-item .nav-link .sidebar-text,
+    .sidebar .sidebar-mobile-header .fas { /* Added for close icon */
+        color: var(--text-light) !important; /* Forced white */
+    }
+
+    /* Sidebar nav-link hover and focus states */
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link:focus {
+        background-color: rgba(255, 255, 255, 0.1) !important; /* Subtle transparent white background on hover/focus */
+        color: var(--text-light) !important; /* Keep text white */
+        border-radius: 0.375rem !important; /* Apply standard Bootstrap rounding */
+    }
+
+    /* Active nav-link style */
+    .sidebar .nav-link.active {
+        background-color: var(--light-purple) !important; /* Lighter purple for active background */
+        color: var(--text-light) !important; /* Keep text white */
+        border-radius: 0.375rem !important; /* Apply standard Bootstrap rounding */
+    }
+    
     /* Show backdrop when sidebar is shown */
     .sidebar.show + .sidebar-backdrop {
         display: block;
@@ -156,28 +221,28 @@
     /* Main content area wrapper for dashboard pages */
     .main-content-area {
         flex-grow: 1; /* Allows it to take up remaining horizontal space in a flex container */
+        margin-left: 0; /* Default no margin for mobile */
         padding: 1.5rem; /* Default padding for all sides */
-        min-height: calc(100vh - var(--navbar-height)); /* Ensures it takes up remaining vertical space below main navbar */
+        min-height: calc(100vh - var(--header-total-height)); /* Ensures it takes up remaining vertical space below fixed header */
         overflow-y: auto; /* Enable scrolling for main content if it overflows */
+        background-color: var(--card-bg-white); /* Main content background color */
     }
+    /* Cards inside main content should be white too, if the area itself is not white */
+    .main-content-area .card {
+        background-color: var(--card-bg-white);
+    }
+
 
     /* Desktop styles */
     @media (min-width: 768px) {
         .sidebar {
-            position: sticky; /* Change to sticky so it respects parent's flow and scrolls with the page when content is short */
-            top: var(--navbar-height); /* Sticks below the main navbar */
+            position: fixed; /* Keep fixed for desktop */
+            top: var(--header-total-height); /* Sticks below combined header */
             width: var(--sidebar-width-desktop); /* Fixed width for desktop */
             transform: translateX(0%); /* Always visible on desktop */
             display: flex !important; /* Override Bootstrap's 'collapse' display: none */
-            height: calc(100vh - var(--navbar-height)); /* Ensure full height from top to bottom */
+            height: calc(100vh - var(--header-total-height)); /* Ensure full height from top to bottom */
         }
-        
-        /* Hide mobile header in sidebar on desktop */
-        .sidebar .sidebar-mobile-header {
-            display: none;
-        }
-
-       
         
         .sidebar-backdrop {
             display: none !important; /* Ensure backdrop is hidden on desktop */
@@ -188,9 +253,8 @@
             display: none !important;
         }
 
-        /* Adjust body padding top if header is sticky instead of fixed */
-        body {
-            padding-top: 0; /* Remove padding-top from body as sticky navbar doesn't take space out of flow */
+        .main-content-area {
+            margin-left: var(--sidebar-width-desktop); /* Push content over */
         }
     }
 
@@ -198,29 +262,16 @@
     .full-width-content-area {
         flex-grow: 1;
         width: 100%;
-        padding: 1.5rem; /* Apply standard padding */
+        position: relative; /* Crucial: Establishes a new stacking context for the content area */
+        z-index: 1; /* Crucial: Ensures this context is lower than the navbar's dropdown (1061) */
+        background-color: var(--bg-light-grey); /* Set background for non-dashboard pages */
     }
 
     /* --- Custom styles for sidebar text and scrollbar --- */
 
-    /* Force all text and icons in the sidebar to be black by default */
-    .sidebar .nav-link,
-    .sidebar .nav-link .sidebar-icon,
-    .sidebar .nav-link .sidebar-text,
-    .sidebar .nav-item h2.h6,
-    .sidebar .user-card h2.h6,
-    .sidebar .user-card .btn.text-dark,
-    .sidebar .nav-link .link-arrow .fas,
-    .sidebar .multi-level .nav-item .nav-link .sidebar-text { /* Added more specific targets */
-        color: #212529 !important; /* Bootstrap's text-dark color, forced */
-    }
-
-
-   
-
     /* Custom scrollbar styles for WebKit browsers (Chrome, Safari, Edge) */
     .sidebar-inner::-webkit-scrollbar {
-        width: 2px; /* Make the scrollbar thinner - WAS 8px */
+        width: 2px; /* Make the scrollbar thinner */
     }
 
     .sidebar-inner::-webkit-scrollbar-track {
@@ -228,18 +279,18 @@
     }
 
     .sidebar-inner::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.1); /* Light gray thumb */
+        background-color: rgba(255, 255, 255, 0.2); /* Light transparent white thumb */
         border-radius: 10px; /* Rounded corners for the thumb */
         border: 2px solid transparent; /* Creates padding around thumb */
         background-clip: padding-box; /* Ensures border doesn't show background */
     }
 
     .sidebar-inner::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(0, 0, 0, 0.3); /* Darker gray on hover */
+        background-color: rgba(255, 255, 255, 0.4); /* Darker transparent white on hover */
     }
 
     /* Remove extra padding from the logout button in the sidebar to prevent visual misalignment */
-    .sidebar .nav-item .btn.btn-secondary {
+    .sidebar .nav-item .btn { /* Target the general button within nav-item */
         padding-left: 1rem; /* Adjust as needed to align with other menu items */
         padding-right: 1rem; /* Adjust as needed */
         text-align: left; /* Align text to left */
@@ -247,17 +298,66 @@
         justify-content: flex-start; /* Align content to start for d-flex */
     }
 
-    .sidebar .nav-item .btn.btn-secondary .sidebar-icon {
+    .sidebar .nav-item .btn .sidebar-icon {
         margin-right: 0.5rem; /* Space between icon and text */
-        margin-top: 40px; /* Remove left margin to align with text */
     }
 
 
-    /* Ensure copyright text in footer is black */
+    /* Ensure copyright text in footer is dark */
     #sticky-footer p {
-        color: #212529 !important;
+        color: var(--text-dark) !important;
     }
 
+    /* Styles for the mobile sidebar header */
+    .sidebar .sidebar-mobile-header {
+        height: var(--navbar-height); /* Matches global navbar height */
+        padding: 0 1rem;
+        background-color: var(--primary-purple); /* Match sidebar background */
+        border-bottom: 1px solid rgba(255,255,255,.1); /* Light border */
+        color: var(--text-light); /* Ensure text is white */
+        font-weight: bold;
+    }
+    .sidebar .sidebar-mobile-header .lottie-player {
+        margin-right: 0.5rem;
+    }
+    .sidebar .sidebar-mobile-header .navbar-brand {
+        display: flex;
+        align-items: center;
+        margin-right: 0;
+    }
+    .sidebar .sidebar-mobile-header .navbar-brand span {
+        color: var(--text-light) !important; /* Ensure brand name is white */
+    }
+    #sticky-footer {
+        background-color: var(--primary-purple); /* Changed to dark purple */
+        border-top: 1px solid rgba(255,255,255,.1); /* Subtle white border top for contrast on dark */
+        box-shadow: 0 -2px 4px rgba(0,0,0,.15); /* Adjusted shadow for dark background */
+        
+        /* py-4 (1.5rem) and mt-5 (3rem) are already in HTML, providing good spacing */
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    #sticky-footer .d-flex {
+        /* Ensure content is vertically centered if the footer has more height */
+        align-items: center; 
+        min-height: 40px; /* Give it a minimum height for better appearance if text is short */
+    }
+
+    /* Ensure copyright text in footer is light */
+    #sticky-footer p {
+        color: var(--text-light) !important; /* Changed to white text for contrast on dark background */
+        font-size: 0.875rem; /* Slightly smaller font size for copyright */
+        font-weight: 500; /* Medium weight instead of full bold for elegance */
+        margin-bottom: 0; /* Remove default paragraph margin within the flex container */
+        line-height: 1.5; /* Standard line height */
+    }
+
+    /* Ensure the current year span specifically inherits text-light */
+    #sticky-footer p .current-year {
+        color: var(--text-light); /* Explicitly ensure year is light */
+    }
+    
 </style>
 
 
@@ -266,7 +366,7 @@
 </head>
 
 <body>
-    {% include 'includes/_navbar.html' %}
+    {% include 'includes/_navbar.html' %} {# This would be the top navigation bar #}
 
     <div class="messages-container">
         {% include 'includes/_messages.html' %}
@@ -277,22 +377,611 @@
     <!-- Wrapper for the main content and sidebar (only rendered if logged in) -->
     <div class="page-wrapper">
         <!-- Sidebar -->
-        <nav id="sidebarMenu" class="bg-white text-dark sidebar collapse d-md-block" data-simplebar>
-            {# New: Mobile header for the sidebar. Only visible on mobile. #}
-            <div class="sidebar-mobile-header d-md-none">
-                <a class="navbar-brand me-lg-5" href="{% if request.session.u_type == 'org' %}/org_index{% else %}/user_index{% endif %}">
-                    <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_wEt2nn.json" background="transparent"
-                        speed="1" style="width: 50px; height: 50px; display: inline-block; vertical-align: middle;" loop autoplay>
-                    </lottie-player>
-                    <span style="font-size:18px; display: inline-block; vertical-align: middle;">My Remote Desk</span>
-                </a>
-                <div class="collapse-close d-md-none ms-auto"> {# ms-auto pushes it to the right #}
-                    <a href="#sidebarMenu" class="fas fa-times" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
-                        aria-controls="sidebarMenu" aria-expanded="true" aria-label="Toggle navigation" style="color: #343a40;"></a>
-                </div>
+        <nav id="sidebarMenu" class="text-dark sidebar collapse d-md-block" data-simplebar>
+            <div class="sidebar-inner px-4 pt-3"> {# Moved px-4 pt-3 from parent to here #}
+                {% block sidebar_menu_content %}{% endblock %}
             </div>
+        </nav>
+        
+        <!-- Sidebar Backdrop (for mobile) -->
+        <div class="sidebar-backdrop d-md-none"></div>
 
-            <div class="sidebar-inner px-4 pt-6"> {# Moved px-4 pt-3 from parent to here #}
+        <!-- Main content area for dashboard pages -->
+        <div class="main-content-area"> {# Removed Bootstrap padding classes, handled by CSS #}
+            {% block dashboard_page_content %}{% endblock %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Content for non-dashboard pages (e.g., login, register, homepage, 404, 500, contact, faq) -->
+    <div class="full-width-content-area">
+        {% block page_content %}{% endblock %}
+    </div>
+    {% endif %}
+
+    {% block core_js %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="{% static 'html/vendor/onscreen/dist/on-screen.umd.min.js' %}"></script>
+    <script src="{% static 'html/vendor/nouislider/distribute/nouislider.min.js' %}"></script>
+    <script src="{% static 'html/vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js' %}"></script>
+    <script src="{% static 'html/vendor/chartist/dist/chartist.min.js' %}"></script>
+    <script src="{% static 'html/vendor/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js' %}"></script>
+    <script src="{% static 'html/vendor/vanillajs-datepicker/dist/js/datepicker-full.min.js' %}"></script>
+    <script src="{% static 'html/vendor/sweetalert2/dist/sweetalert2.all.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+    <script src="{% static 'html/vendor/notyf/notyf.min.js' %}"></script>
+    <script src="{% static 'html/vendor/simplebar/dist/simplebar.min.js' %}"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    {% endblock %}
+
+    {% block extra_body_scripts %}{% endblock %}
+    <script>
+        // Global function for logout
+        function funLogout() {
+            swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to logout?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Logout me!',
+                cancelButtonText: 'No!',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#202124',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swal.fire(
+                        'Cancelled',
+                        'Logout cancelled.',
+                        'error'
+                    )
+                }
+            })
+        }
+
+        // Function to highlight active sidebar link
+        function highlightActiveSidebarLink() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('#sidebarMenu .nav-link');
+
+            navLinks.forEach(link => {
+                // Remove 'active' class from all links first
+                link.classList.remove('active');
+
+                // Check if the link's href matches the current path
+                const linkHref = new URL(link.href).pathname;
+                
+                // Special handling for index page if currentPath is '/' and linkHref is '/org_index' or vice versa
+                // Or if currentPath is empty for the root
+                if (linkHref === currentPath || 
+                    (linkHref === '/org_index/' && currentPath === '/') || 
+                    (linkHref === '/' && currentPath === '/org_index/')) {
+                    link.classList.add('active');
+                } else if (currentPath.startsWith(linkHref) && linkHref !== '/') {
+                    // For nested paths, e.g., /read-emp/1 should activate /read-emp
+                    // Make sure it doesn't activate a parent link if the current path is just the parent
+                    if (currentPath === linkHref || currentPath.startsWith(linkHref + '/')) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to adjust layout based on messages visibility and height
+            function adjustLayoutForMessages() {
+                const navbarElement = document.querySelector('.navbar-main');
+                const navbarHeight = navbarElement ? navbarElement.offsetHeight : 0;
+                // Set CSS variable for navbar height
+                document.documentElement.style.setProperty('--navbar-height', `${navbarHeight}px`);
+
+                const messagesContainer = document.querySelector('.messages-container');
+                let currentMessagesHeight = 0;
+                if (messagesContainer) {
+                    // Only count visible alerts (that have 'show' class)
+                    const visibleAlerts = messagesContainer.querySelectorAll('.alert.show');
+                    visibleAlerts.forEach(alert => {
+                        currentMessagesHeight += alert.offsetHeight;
+                    });
+                    // Set CSS variable for messages height
+                    document.documentElement.style.setProperty('--messages-height', `${currentMessagesHeight}px`);
+                }
+
+                // Calculate total height for fixed header
+                const headerTotalHeight = navbarHeight + currentMessagesHeight;
+                document.documentElement.style.setProperty('--header-total-height', `${headerTotalHeight}px`);
+                // Apply padding to body to push content below the fixed header
+                document.body.style.paddingTop = `${headerTotalHeight}px`;
+                
+                // Adjust sidebar top
+                const sidebarMenu = document.getElementById('sidebarMenu');
+                if (sidebarMenu) {
+                    sidebarMenu.style.top = `var(--header-total-height)`;
+                }
+            }
+
+            // Initial layout adjustment on page load
+            adjustLayoutForMessages();
+            highlightActiveSidebarLink(); // Call on initial load
+
+            // Auto-hide messages after 4 seconds and re-adjust layout
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+                const alerts = messagesContainer.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    setTimeout(() => {
+                        // Check if alert still exists in DOM before trying to hide
+                        if (alert.closest('body')) { 
+                            const bsAlert = bootstrap.Alert.getInstance(alert) || new bootstrap.Alert(alert);
+                            if (bsAlert) {
+                                // Listen for the 'hidden.bs.alert' event before removing to allow transition
+                                alert.addEventListener('hidden.bs.alert', function () {
+                                    alert.remove(); // Remove from DOM after transition
+                                    adjustLayoutForMessages(); // Re-adjust layout after removal
+                                }, { once: true }); // Ensure this listener runs only once
+                                bsAlert.hide(); // Trigger Bootstrap's hide method
+                            } else {
+                                // Fallback if Bootstrap Alert instance not found (e.g., if JS loads late)
+                                alert.remove();
+                                adjustLayoutForMessages(); // Re-adjust layout immediately
+                            }
+                        }
+                    }, 4000); // 4 seconds
+                });
+            }
+
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            const sidebarBackdrop = document.querySelector('.sidebar-backdrop'); 
+
+            if (sidebarMenu && sidebarBackdrop) {
+                sidebarMenu.addEventListener('show.bs.collapse', function () {
+                    document.body.classList.add('sidebar-open-mobile');
+                });
+                sidebarMenu.addEventListener('hide.bs.collapse', function () {
+                    document.body.classList.remove('sidebar-open-mobile');
+                });
+
+                sidebarBackdrop.addEventListener('click', function() {
+                    const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                    if (bsCollapse) {
+                        bsCollapse.hide();
+                    }
+                });
+                
+                sidebarMenu.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        // Close sidebar on link click only if it's a mobile view AND sidebar is open
+                        if (window.innerWidth < 768 && sidebarMenu.classList.contains('show')) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                            if (bsCollapse) {
+                                bsCollapse.hide();
+                            }
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', function() {
+                    adjustLayoutForMessages(); // Re-adjust on resize in case elements change height
+                    if (window.innerWidth >= 768) {
+                        sidebarMenu.classList.add('show'); // Ensure sidebar is always visible on desktop
+                        document.body.classList.remove('sidebar-open-mobile'); // Remove overflow hidden
+                        // Also hide the backdrop if it was somehow visible
+                        if (sidebarBackdrop.style.display !== 'none') {
+                           sidebarBackdrop.style.display = 'none';
+                        }
+                    } else {
+                        // On mobile, if window resizes *down* from desktop, hide sidebar by default
+                        if (sidebarMenu.classList.contains('show')) {
+                             const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                             if (bsCollapse) {
+                                 bsCollapse.hide(); // Hide if it was open on desktop before resize
+                             } else {
+                                sidebarMenu.style.transform = 'translateX(-100%)'; // Ensure hidden if no BS instance
+                             }
+                        }
+                    }
+                });
+                // Initial check for desktop view on load
+                if (window.innerWidth >= 768) {
+                    sidebarMenu.classList.add('show');
+                }
+            }
+        });
+    </script>
+
+    <footer id="sticky-footer" class="py-4 mt-5">
+        <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
+            <p class="font-weight-bold font-medium mb-0">Copyright @requinsolutionpvtltd
+                <span class="current-year">
+                    <script>document.write(new Date().getFullYear())</script>
+                </span>. All rights reserved.
+            </p>
+        </div><br>
+       
+    </footer>
+</body>
+</html>
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Remote Desk</title>
+    {% load static %}
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+
+    <!-- Sweet Alert 2 CSS -->
+    <link type="text/css" rel="stylesheet" href="{% static 'html/vendor/sweetalert2/dist/sweetalert2.min.css' %}">
+    </link>
+
+    <!-- Notyf CSS -->
+    <link type="text/css" rel="stylesheet" href="{% static 'html/vendor/notyf/notyf.min.css' %}">
+    </link>
+
+    <!-- Volt CSS (Ensure this theme is compatible with Bootstrap 5, or find an updated version) -->
+    <link type="text/css" rel="stylesheet" href="{% static 'html/css/volt.css' %}">
+    </link>
+
+    <!-- jQuery (Bootstrap 5 doesn't require jQuery, but existing code might rely on it heavily) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <style>
+    :root {
+        --navbar-height: 56px; /* Standard Bootstrap navbar height, will be updated by JS */
+        --messages-height: 0px; /* Dynamic height for messages container, updated by JS */
+        --header-total-height: var(--navbar-height); /* Combined height of navbar and messages, updated by JS */
+        --sidebar-width-desktop: 350px; /* Adjusted to be slightly narrower to match image better */
+        --sidebar-max-width-mobile: 300px; /* Max width for mobile sidebar */
+
+        /* --- Custom Color Variables from Design Image (FINAL) --- */
+        --primary-purple: #37474F; /* Dark Greyish Blue - main sidebar/navbar */
+        --light-purple: #F48FB1; /* Light Pink - active sidebar item */
+        --accent-blue: #FF4081; /* Vibrant Pink/Red - accents, specific elements */
+        --text-light: #FFFFFF; /* White text on dark backgrounds */
+        --text-dark: #212121; /* Very Dark Grey - text on light backgrounds */
+        --bg-light-grey: #F8F9FA; /* Very Light Grey - overall page background */
+        --card-bg-white: #FFFFFF; /* White - background for cards/content blocks */
+    }
+
+    /* Make body a flex container to push footer to bottom */
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Minimum height of the viewport */
+        background-color: var(--bg-light-grey); /* Overall body background */
+        overflow-x: hidden; /* Prevent horizontal scroll from hidden sidebar */
+        padding-top: var(--header-total-height); /* Dynamic padding to push content below fixed header */
+        transition: padding-top 0.3s ease; /* Smooth transition when messages appear/disappear */
+    }
+
+    /* Main application header (global navbar) */
+    .header-global {
+        position: fixed; /* Changed to fixed to always stay at top */
+        top: 0;
+        width: 100%;
+        z-index: 1060; /* Higher than messages and sidebar */
+        box-shadow: 0 2px 4px rgba(0,0,0,.05); /* Optional: subtle shadow */
+    }
+
+    /* Styles for the main top navbar */
+    .navbar-main {
+        background-color: var(--primary-purple) !important; /* Apply primary purple background */
+        color: var(--text-light); /* Set default text color to white for better contrast */
+    }
+
+    /* Ensure all nav-links and icons within the main navbar are white */
+    .navbar-main .nav-link,
+    .navbar-main .navbar-brand span, /* For brand text if any, adjusted to affect span for image alignment */
+    .navbar-main .navbar-toggler-icon .fas,
+    .navbar-main .nav-link .fas { /* For icons in nav links */
+        color: var(--text-light) !important;
+    }
+    
+    /* Navbar links on hover/focus */
+    .navbar-main .nav-link:hover,
+    .navbar-main .nav-link:focus {
+        color: rgba(255, 255, 255, 0.75) !important; /* Slightly fade on hover */
+    }
+
+    /* For dropdown menu itself (it's usually white background with dark text) */
+    .navbar-main .dropdown-menu {
+        background-color: var(--card-bg-white); /* White background for dropdown menu */
+        border-color: rgba(0,0,0,.15);
+    }
+
+    .navbar-main .dropdown-item {
+        color: var(--text-dark) !important; /* Dark text for dropdown items */
+    }
+
+    .navbar-main .dropdown-item:hover,
+    .navbar-main .dropdown-item:focus {
+        background-color: var(--bg-light-grey); /* Light grey on hover for dropdown items */
+        color: var(--text-dark) !important;
+    }
+
+    /* Specific logout button styling within navbar */
+    .navbar-main .nav-item .btn.btn-secondary { /* Target by btn-secondary, not text-dark as that class is removed */
+        background-color: rgba(255, 255, 255, 0.1); /* Subtle background for button */
+        border-color: transparent; /* No border */
+        color: var(--text-light) !important; /* White text */
+    }
+
+    .navbar-main .nav-item .btn.btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.2); /* Slightly darker on hover */
+    }
+
+
+    /* Messages container - fixed just below the main navbar */
+    .messages-container {
+        position: fixed; /* Changed to fixed for constant positioning */
+        top: var(--navbar-height); /* Sticks right below the main navbar */
+        left: 0;
+        width: 100%;
+        z-index: 1050; /* Below main fixed navbar, above sidebar */
+    }
+    .messages-container .alert {
+        margin-bottom: 0;
+        border-radius: 0;
+    }
+
+    /* Page wrapper for sidebar and main content */
+    .page-wrapper {
+        display: flex; /* Flex container for sidebar and main content */
+        flex-grow: 1; /* Allows it to take up all remaining vertical space in the body */
+        width: 100%; /* Important for proper flex behavior in some scenarios */
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+        position: fixed; /* Fixed position relative to viewport */
+        top: var(--header-total-height); /* Dynamic top based on combined header height */
+        bottom: 0; /* Extends to the bottom of the viewport */
+        left: 0; /* Aligned to the left edge */
+        z-index: 1020; /* Below main fixed navbar, above main content area */
+        background-color: var(--primary-purple); /* Changed from white to primary purple */
+        color: var(--text-light); /* Set default text color to white */
+        width: 75vw; /* Default width for mobile (percentage of viewport width) */
+        max-width: var(--sidebar-max-width-mobile); /* Max width for mobile sidebar */
+        transform: translateX(-100%); /* Hidden off-screen by default on mobile */
+        transition: transform 0.3s ease-in-out; /* Smooth slide transition */
+        display: flex; /* Make sidebar itself a flex container */
+        flex-direction: column; /* Stack its direct children vertically */
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15); /* Added shadow for visual separation */
+    }
+
+    /* Ensure the inner content of the sidebar takes full height and manages its own overflow */
+    .sidebar .sidebar-inner {
+        flex-grow: 1; /* Allows the inner content to take up available vertical space */
+        overflow-y: auto; /* Enables scrolling for the sidebar content */
+        padding: 1rem 0.5rem; /* General padding for menu items, slightly adjusted */
+        padding-top: 1rem; /* Adjust top padding */
+        padding-bottom: 20px; /* Add some bottom padding as well */
+    }
+
+    /* Bootstrap's 'show' class to make sidebar visible on mobile */
+    .sidebar.show {
+        transform: translateX(0%);
+    }
+
+    /* Overlay backdrop when mobile sidebar is open */
+    .sidebar-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1010; /* Below sidebar, above main content area */
+        display: none; /* Hidden by default */
+    }
+
+    /* Force all text and icons in the sidebar to be white by default */
+    .sidebar .nav-link,
+    .sidebar .nav-link .sidebar-icon,
+    .sidebar .nav-link .sidebar-text,
+    .sidebar .nav-item h2.h6,
+    .sidebar .user-card h2.h6,
+    .sidebar .user-card .btn, /* Target the button within user-card specifically */
+    .sidebar .nav-link .link-arrow .fas,
+    .sidebar .multi-level .nav-item .nav-link .sidebar-text,
+    .sidebar .sidebar-mobile-header .fas { /* Added for close icon */
+        color: var(--text-light) !important; /* Forced white */
+    }
+
+    /* Sidebar nav-link hover and focus states */
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link:focus {
+        background-color: rgba(255, 255, 255, 0.1) !important; /* Subtle transparent white background on hover/focus */
+        color: var(--text-light) !important; /* Keep text white */
+        border-radius: 0.375rem !important; /* Apply standard Bootstrap rounding */
+    }
+
+    /* Active nav-link style */
+    .sidebar .nav-link.active {
+        background-color: var(--light-purple) !important; /* Lighter purple for active background */
+        color: var(--text-light) !important; /* Keep text white */
+        border-radius: 0.375rem !important; /* Apply standard Bootstrap rounding */
+    }
+    
+    /* Show backdrop when sidebar is shown */
+    .sidebar.show + .sidebar-backdrop {
+        display: block;
+    }
+
+    /* Prevent body scrolling when mobile sidebar is open */
+    body.sidebar-open-mobile {
+        overflow: hidden;
+    }
+
+    /* Main content area wrapper for dashboard pages */
+    .main-content-area {
+        flex-grow: 1; /* Allows it to take up remaining horizontal space in a flex container */
+        margin-left: 0; /* Default no margin for mobile */
+        padding: 1.5rem; /* Default padding for all sides */
+        min-height: calc(100vh - var(--header-total-height)); /* Ensures it takes up remaining vertical space below fixed header */
+        overflow-y: auto; /* Enable scrolling for main content if it overflows */
+        background-color: var(--card-bg-white); /* Main content background color */
+    }
+    /* Cards inside main content should be white too, if the area itself is not white */
+    .main-content-area .card {
+        background-color: var(--card-bg-white);
+    }
+
+
+    /* Desktop styles */
+    @media (min-width: 768px) {
+        .sidebar {
+            position: fixed; /* Keep fixed for desktop */
+            top: var(--header-total-height); /* Sticks below combined header */
+            width: var(--sidebar-width-desktop); /* Fixed width for desktop */
+            transform: translateX(0%); /* Always visible on desktop */
+            display: flex !important; /* Override Bootstrap's 'collapse' display: none */
+            height: calc(100vh - var(--header-total-height)); /* Ensure full height from top to bottom */
+        }
+        
+        .sidebar-backdrop {
+            display: none !important; /* Ensure backdrop is hidden on desktop */
+        }
+
+        /* Hide the mobile navbar toggler from the main _navbar.html on desktop */
+        .header-global .navbar-toggler {
+            display: none !important;
+        }
+
+        .main-content-area {
+            margin-left: var(--sidebar-width-desktop); /* Push content over */
+        }
+    }
+
+    /* Styles for pages without dashboard layout (e.g., login, register, 404, contact, faq) */
+    .full-width-content-area {
+        flex-grow: 1;
+        width: 100%;
+        background-color: var(--bg-light-grey); /* Set background for non-dashboard pages */
+    }
+
+    /* --- Custom styles for sidebar text and scrollbar --- */
+
+    /* Custom scrollbar styles for WebKit browsers (Chrome, Safari, Edge) */
+    .sidebar-inner::-webkit-scrollbar {
+        width: 2px; /* Make the scrollbar thinner */
+    }
+
+    .sidebar-inner::-webkit-scrollbar-track {
+        background: transparent; /* Make the track transparent */
+    }
+
+    .sidebar-inner::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2); /* Light transparent white thumb */
+        border-radius: 10px; /* Rounded corners for the thumb */
+        border: 2px solid transparent; /* Creates padding around thumb */
+        background-clip: padding-box; /* Ensures border doesn't show background */
+    }
+
+    .sidebar-inner::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255, 255, 255, 0.4); /* Darker transparent white on hover */
+    }
+
+    /* Remove extra padding from the logout button in the sidebar to prevent visual misalignment */
+    .sidebar .nav-item .btn { /* Target the general button within nav-item */
+        padding-left: 1rem; /* Adjust as needed to align with other menu items */
+        padding-right: 1rem; /* Adjust as needed */
+        text-align: left; /* Align text to left */
+        width: 100%; /* Make button take full width */
+        justify-content: flex-start; /* Align content to start for d-flex */
+    }
+
+    .sidebar .nav-item .btn .sidebar-icon {
+        margin-right: 0.5rem; /* Space between icon and text */
+    }
+
+
+    /* Ensure copyright text in footer is dark */
+    #sticky-footer p {
+        color: var(--text-dark) !important;
+    }
+
+    /* Styles for the mobile sidebar header */
+    .sidebar .sidebar-mobile-header {
+        height: var(--navbar-height); /* Matches global navbar height */
+        padding: 0 1rem;
+        background-color: var(--primary-purple); /* Match sidebar background */
+        border-bottom: 1px solid rgba(255,255,255,.1); /* Light border */
+        color: var(--text-light); /* Ensure text is white */
+        font-weight: bold;
+    }
+    .sidebar .sidebar-mobile-header .lottie-player {
+        margin-right: 0.5rem;
+    }
+    .sidebar .sidebar-mobile-header .navbar-brand {
+        display: flex;
+        align-items: center;
+        margin-right: 0;
+    }
+    .sidebar .sidebar-mobile-header .navbar-brand span {
+        color: var(--text-light) !important; /* Ensure brand name is white */
+    }
+#sticky-footer {
+        background-color: var(--primary-purple); /* Changed to dark purple */
+        border-top: 1px solid rgba(255,255,255,.1); /* Subtle white border top for contrast on dark */
+        box-shadow: 0 -2px 4px rgba(0,0,0,.15); /* Adjusted shadow for dark background */
+        
+        /* py-4 (1.5rem) and mt-5 (3rem) are already in HTML, providing good spacing */
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    #sticky-footer .d-flex {
+        /* Ensure content is vertically centered if the footer has more height */
+        align-items: center; 
+        min-height: 40px; /* Give it a minimum height for better appearance if text is short */
+    }
+
+    /* Ensure copyright text in footer is light */
+    #sticky-footer p {
+        color: var(--text-light) !important; /* Changed to white text for contrast on dark background */
+        font-size: 0.875rem; /* Slightly smaller font size for copyright */
+        font-weight: 500; /* Medium weight instead of full bold for elegance */
+        margin-bottom: 0; /* Remove default paragraph margin within the flex container */
+        line-height: 1.5; /* Standard line height */
+    }
+
+    /* Ensure the current year span specifically inherits text-light */
+    #sticky-footer p .current-year {
+        color: var(--text-light); /* Explicitly ensure year is light */
+    }
+    
+</style>
+
+
+    {% block extra_head_css %}{% endblock %}
+    {% block head_scripts %}{% endblock %}
+</head>
+
+<body>
+    {% include 'includes/_navbar.html' %} {# This would be the top navigation bar #}
+
+    <div class="messages-container">
+        {% include 'includes/_messages.html' %}
+    </div>
+    {% csrf_token %} {# Added for global CSRF token access by JavaScript #}
+
+    {% if request.session.logged_in %}
+    <!-- Wrapper for the main content and sidebar (only rendered if logged in) -->
+    <div class="page-wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebarMenu" class="text-dark sidebar collapse d-md-block" data-simplebar>
+            <div class="sidebar-inner px-4 pt-3"> {# Moved px-4 pt-3 from parent to here #}
                 {% block sidebar_menu_content %}{% endblock %}
             </div>
         </nav>
@@ -330,10 +1019,179 @@
     {% endblock %}
 
     {% block extra_body_scripts %}{% endblock %}
+    <script>
+        // Global function for logout
+        function funLogout() {
+            swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to logout?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Logout me!',
+                cancelButtonText: 'No!',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#202124',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swal.fire(
+                        'Cancelled',
+                        'Logout cancelled.',
+                        'error'
+                    )
+                }
+            })
+        }
+
+        // Function to highlight active sidebar link
+        function highlightActiveSidebarLink() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('#sidebarMenu .nav-link');
+
+            navLinks.forEach(link => {
+                // Remove 'active' class from all links first
+                link.classList.remove('active');
+
+                // Check if the link's href matches the current path
+                const linkHref = new URL(link.href).pathname;
+                
+                // Special handling for index page if currentPath is '/' and linkHref is '/org_index' or vice versa
+                // Or if currentPath is empty for the root
+                if (linkHref === currentPath || 
+                    (linkHref === '/org_index/' && currentPath === '/') || 
+                    (linkHref === '/' && currentPath === '/org_index/')) {
+                    link.classList.add('active');
+                } else if (currentPath.startsWith(linkHref) && linkHref !== '/') {
+                    // For nested paths, e.g., /read-emp/1 should activate /read-emp
+                    // Make sure it doesn't activate a parent link if the current path is just the parent
+                    if (currentPath === linkHref || currentPath.startsWith(linkHref + '/')) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to adjust layout based on messages visibility and height
+            function adjustLayoutForMessages() {
+                const navbarElement = document.querySelector('.navbar-main');
+                const navbarHeight = navbarElement ? navbarElement.offsetHeight : 0;
+                // Set CSS variable for navbar height
+                document.documentElement.style.setProperty('--navbar-height', `${navbarHeight}px`);
+
+                const messagesContainer = document.querySelector('.messages-container');
+                let currentMessagesHeight = 0;
+                if (messagesContainer) {
+                    // Only count visible alerts (that have 'show' class)
+                    const visibleAlerts = messagesContainer.querySelectorAll('.alert.show');
+                    visibleAlerts.forEach(alert => {
+                        currentMessagesHeight += alert.offsetHeight;
+                    });
+                    // Set CSS variable for messages height
+                    document.documentElement.style.setProperty('--messages-height', `${currentMessagesHeight}px`);
+                }
+
+                // Calculate total height for fixed header
+                const headerTotalHeight = navbarHeight + currentMessagesHeight;
+                document.documentElement.style.setProperty('--header-total-height', `${headerTotalHeight}px`);
+                // Apply padding to body to push content below the fixed header
+                document.body.style.paddingTop = `${headerTotalHeight}px`;
+                
+                // Adjust sidebar top
+                const sidebarMenu = document.getElementById('sidebarMenu');
+                if (sidebarMenu) {
+                    sidebarMenu.style.top = `var(--header-total-height)`;
+                }
+            }
+
+            // Initial layout adjustment on page load
+            adjustLayoutForMessages();
+            highlightActiveSidebarLink(); // Call on initial load
+
+            // Auto-hide messages after 4 seconds and re-adjust layout
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+                const alerts = messagesContainer.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    setTimeout(() => {
+                        const bsAlert = bootstrap.Alert.getInstance(alert);
+                        if (bsAlert) {
+                            // Listen for the 'hidden.bs.alert' event before removing to allow transition
+                            alert.addEventListener('hidden.bs.alert', function () {
+                                alert.remove(); // Remove from DOM after transition
+                                adjustLayoutForMessages(); // Re-adjust layout after removal
+                            }, { once: true }); // Ensure this listener runs only once
+                            bsAlert.hide(); // Trigger Bootstrap's hide method
+                        } else {
+                            // Fallback if Bootstrap Alert instance not found (e.g., if JS loads late)
+                            alert.remove();
+                            adjustLayoutForMessages(); // Re-adjust layout immediately
+                        }
+                    }, 4000); // 4 seconds
+                });
+            }
+
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            const sidebarBackdrop = document.querySelector('.sidebar-backdrop'); 
+
+            if (sidebarMenu && sidebarBackdrop) {
+                sidebarMenu.addEventListener('show.bs.collapse', function () {
+                    document.body.classList.add('sidebar-open-mobile');
+                });
+                sidebarMenu.addEventListener('hide.bs.collapse', function () {
+                    document.body.classList.remove('sidebar-open-mobile');
+                });
+
+                sidebarBackdrop.addEventListener('click', function() {
+                    const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                    if (bsCollapse) {
+                        bsCollapse.hide();
+                    }
+                });
+                
+                sidebarMenu.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        // Close sidebar on link click only if it's a mobile view AND sidebar is open
+                        if (window.innerWidth < 768 && sidebarMenu.classList.contains('show')) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                            if (bsCollapse) {
+                                bsCollapse.hide();
+                            }
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', function() {
+                    adjustLayoutForMessages(); // Re-adjust on resize in case elements change height
+                    if (window.innerWidth >= 768) {
+                        sidebarMenu.classList.add('show'); // Ensure sidebar is always visible on desktop
+                        document.body.classList.remove('sidebar-open-mobile'); // Remove overflow hidden
+                    } else {
+                        // On mobile, if window resizes *down* from desktop, hide sidebar by default
+                        if (sidebarMenu.classList.contains('show')) {
+                             const bsCollapse = bootstrap.Collapse.getInstance(sidebarMenu);
+                             if (bsCollapse) {
+                                 bsCollapse.hide(); // Hide if it was open on desktop before resize
+                             } else {
+                                sidebarMenu.style.transform = 'translateX(-100%)'; // Ensure hidden if no BS instance
+                             }
+                        }
+                    }
+                });
+                // Initial check for desktop view on load
+                if (window.innerWidth >= 768) {
+                    sidebarMenu.classList.add('show');
+                }
+            }
+        });
+    </script>
 
     <footer id="sticky-footer" class="py-4 mt-5">
         <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
-            <p class="font-weight-bold font-medium mb-0">Copyright © MyRemoteDesk
+            <p class="font-weight-bold font-medium mb-0">Copyright @requinsolutionpvtltd
                 <span class="current-year">
                     <script>document.write(new Date().getFullYear())</script>
                 </span>. All rights reserved.
@@ -342,4 +1200,4 @@
        
     </footer>
 </body>
-</html>
+</html> {% endcomment %}

@@ -1,85 +1,150 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
-<div class="container">
-                        <div class="card-body">
-                            <form action="/overview-task" method="POST">
-                                {% csrf_token %}
-                                <div class="mb-4">
-                                    <div class="form-group">
-                                        <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Priority</label>
-                                        <select class="custom-select my-1 mr-sm-2" id="inlineFormCustomSelectPref" name="t_priority_filter" required>
-                                            <option value="any">Any
-                                            </option>
-                                            <option value="High Priority">High Priority
-                                            </option>
-                                            <option value="Medium Priority">Medium Priority
-                                            </option>
-                                            <option value="Low Priority">Low Priority
-                                            </option>
-                                        </select>
-                                    </div>
-                                <div class="form-group">
-                                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Status</label>
-                                    <select class="custom-select my-1 mr-sm-2" id="inlineFormCustomSelectPref" name="t_status_filter" required>
-                                        <option value="any">Any
-                                        </option>
-                                        <option value="todo">Todo
-                                        </option>
-                                        <option value="completed">Completed
-                                        </option>
-                                    </select>
-                                </div>
-                                    <input type="submit" class="btn btn-primary" value="Filter">
-                            </form>
-                        </div>
-<div class="container-fluid kanban-container py-4 px-0">
-    <div class="row d-flex flex-nowrap">
-        {% for board in board_details %}
-        <div class="col-12 col-lg-6 col-xl-4 col-xxl-3">
-            <div class="card border-0 shadow p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h2 fw-bold mb-0 d-flex justify-content-center">{{ board.b_name|upper }}</h2>
-            </div>
-            <div id="kanbanColumn1" class="list-group kanban-list">
-                {% for task in board.boardids.all %}
-                <div class="card border-1 shadow p-4">
-                    <div class="card-header d-flex align-items-center justify-content-between border-0 p-0 mb-2">
-                        <h3 class="h3 mb-0">{{task.t_name|upper}}</h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <p>{{task.t_desc}}</p>
-
-                        <h4 class="fs-6 fw-normal mt-4"><b>Project:</b>
-                            {{task.p_id.p_name|upper}}</h4>
-
-                        <h4 class="fs-6 fw-normal mt-4"><b>Assigned:</b>
-                        {{task.e_id.e_name|upper}}</h4>
-                        <h4 class="fs-6 fw-normal mt-4"><b>Priority:</b>
-                                                            {% if task.t_priority == "High Priority" %}
-                                                        <span class="badge bg-danger">High</span>
-                                                            {% elif task.t_priority == "Medium Priority" %}
-                                                        <span class="badge bg-warning">Medium</span>
-                                                            {% elif task.t_priority == "Low Priority" %}
-                                                        <span class="badge bg-info">Low</span>
-                                                            {% endif %}  
-                        </h4>
-                        <h5 class="fs-6 fw-normal mt-4"><b>Assigned Date:</b>
-                          {{task.t_assign_date}} 
-                        </h5>
-                        <h5 class="fs-6 fw-normal mt-4"><b>Deadline Date:</b>
-                            {{ task.t_deadline_date}}
-                        </h5>
+<div class="container py-4">
+    <div class="card shadow rounded-4 border-0 p-4 mb-4"> {# Card for filter section #}
+        <h3 class="h5 text-center mb-3">Filter Tasks</h3>
+        <form action="/overview-task" method="POST">
+            {% csrf_token %}
+            <div class="row align-items-end"> {# Align items to bottom for consistent control height #}
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label class="form-label" for="priorityFilter">Priority</label>
+                        <select class="form-control" id="priorityFilter" name="t_priority_filter" required>
+                            <option value="any">Any</option>
+                            <option value="High Priority">High Priority</option>
+                            <option value="Medium Priority">Medium Priority</option>
+                            <option value="Low Priority">Low Priority</option>
+                        </select>
                     </div>
                 </div>
-                <br>
-                {% endfor %}
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label class="form-label" for="statusFilter">Status</label>
+                        <select class="form-control" id="statusFilter" name="t_status_filter" required>
+                            <option value="any">Any</option>
+                            <option value="todo">Todo</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 text-center mt-3"> {# Center the filter button #}
+                    <button type="submit" class="btn btn-primary btn-lg">Filter</button>
+                </div>
             </div>
+        </form>
+    </div>
+
+    <div class="kanban-container d-flex flex-nowrap overflow-auto"> {# Ensure horizontal scrolling on small screens #}
+        {% for board in board_details %}
+        <div class="col-12 col-lg-6 col-xl-4 col-xxl-3 flex-shrink-0 px-2" style="min-width: 300px;"> {# Fixed width columns for kanban view #}
+            <div class="card shadow rounded-3 p-4 mb-4"> {# Consistent card styling, mb-4 for spacing between boards #}
+                <div class="text-center mb-3">
+                    <h4 class="h5 fw-bold mb-0">{{ board.b_name|upper }}</h4> {# Slightly smaller heading for board titles #}
+                </div>
+                <div class="kanban-list"> {# Removed list-group class if not explicitly used for list-group styling #}
+                    {% for task in board.boardids.all %}
+                    <div class="card shadow-sm rounded-3 p-3 mb-3"> {# Smaller, lighter card for tasks #}
+                        <h5 class="h6 mb-2 fw-bold">{{task.t_name|upper}}</h5> {# Smaller heading for task names #}
+                        <p class="text-muted small mb-3">{{task.t_desc}}</p> {# Smaller text for description #}
+
+                        <ul class="list-unstyled mb-0"> {# Use list-unstyled for details without bullets #}
+                            <li class="mb-1"><strong>Project:</strong> <span class="fw-normal">{{task.p_id.p_name|upper}}</span></li>
+                            <li class="mb-1"><strong>Assigned:</strong> <span class="fw-normal">{{task.e_id.e_name|upper}}</span></li>
+                            <li class="mb-1">
+                                <strong>Priority:</strong>
+                                {% if task.t_priority == "High Priority" %}
+                                <span class="badge bg-danger">High</span>
+                                {% elif task.t_priority == "Medium Priority" %}
+                                <span class="badge bg-warning">Medium</span>
+                                {% elif task.t_priority == "Low Priority" %}
+                                <span class="badge bg-info">Low</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-1"><strong>Assigned Date:</strong> <span class="fw-normal">{{task.t_assign_date}}</span></li>
+                            <li><strong>Deadline Date:</strong> <span class="fw-normal">{{ task.t_deadline_date}}</span></li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
         {% endfor %}
-        <br>
-        <br>
     </div>
+</div>
+{% endblock %}
+
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+<div class="container py-4">
+    <div class="card shadow rounded-4 border-0 p-4 mb-4"> {# Card for filter section #}
+        <h3 class="h5 text-center mb-3 text-white">Filter Tasks</h3>
+        <form action="/overview-task" method="POST">
+            {% csrf_token %}
+            <div class="row align-items-end"> {# Align items to bottom for consistent control height #}
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label class="form-label text-white" for="priorityFilter">Priority</label>
+                        <select class="form-control" id="priorityFilter" name="t_priority_filter" required>
+                            <option value="any">Any</option>
+                            <option value="High Priority">High Priority</option>
+                            <option value="Medium Priority">Medium Priority</option>
+                            <option value="Low Priority">Low Priority</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label class="form-label text-white" for="statusFilter">Status</label>
+                        <select class="form-control" id="statusFilter" name="t_status_filter" required>
+                            <option value="any">Any</option>
+                            <option value="todo">Todo</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 text-center mt-3"> {# Center the filter button #}
+                    <button type="submit" class="btn btn-primary btn-lg">Filter</button>
+                </div>
+            </div>
+        </form>
     </div>
+
+    <div class="kanban-container d-flex flex-nowrap overflow-auto"> {# Ensure horizontal scrolling on small screens #}
+        {% for board in board_details %}
+        <div class="col-12 col-lg-6 col-xl-4 col-xxl-3 flex-shrink-0 px-2" style="min-width: 300px;"> {# Fixed width columns for kanban view #}
+            <div class="card shadow rounded-3 p-4 mb-4"> {# Consistent card styling, mb-4 for spacing between boards #}
+                <div class="text-center mb-3">
+                    <h4 class="h5 fw-bold mb-0 text-white">{{ board.b_name|upper }}</h4> {# Slightly smaller heading for board titles #}
+                </div>
+                <div class="kanban-list"> {# Removed list-group class if not explicitly used for list-group styling #}
+                    {% for task in board.boardids.all %}
+                    <div class="card shadow-sm rounded-3 p-3 mb-3"> {# Smaller, lighter card for tasks #}
+                        <h5 class="h6 mb-2 fw-bold text-primary">{{task.t_name|upper}}</h5> {# Smaller heading for task names #}
+                        <p class="text-muted small mb-3">{{task.t_desc}}</p>
+
+                        <ul class="list-unstyled mb-0 text-light-gray"> {# Use list-unstyled for details without bullets #}
+                            <li class="mb-1"><strong>Project:</strong> <span class="fw-normal">{{task.p_id.p_name|upper}}</span></li>
+                            <li class="mb-1"><strong>Assigned:</strong> <span class="fw-normal">{{task.e_id.e_name|upper}}</span></li>
+                            <li class="mb-1">
+                                <strong>Priority:</strong>
+                                {% if task.t_priority == "High Priority" %}
+                                <span class="badge bg-danger">High</span>
+                                {% elif task.t_priority == "Medium Priority" %}
+                                <span class="badge bg-warning">Medium</span>
+                                {% elif task.t_priority == "Low Priority" %}
+                                <span class="badge bg-info">Low</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-1"><strong>Assigned Date:</strong> <span class="fw-normal">{{task.t_assign_date}}</span></li>
+                            <li><strong>Deadline Date:</strong> <span class="fw-normal">{{ task.t_deadline_date}}</span></li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    {% endblock %}
+</div>
+{% endblock %} {% endcomment %}
+ 

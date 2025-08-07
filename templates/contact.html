@@ -1,53 +1,96 @@
+
 {% extends 'layout.html' %}
 {% block page_content  %}
 <main>
     <section class="d-flex align-items-center my-5 mt-lg-6 mb-lg-5">
         <div class="container">
-            <div class="alert alert-success" role="alert">
-            {{msg}}
-            </div>
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-80 fmxw-575">
-                    <div class="text-center text-md-center mb-4 mt-md-0">
-                        <div class="row justify-content-center">
-                            <div class="col-12 col-xl-8 text-center">
-                                <h1 class="display-2 mb-3">Get in touch today</h1>
-                                <p class="lead">Have a new project in mind? Drop us a line about your project needs, we
-                                    answer same day.</p>
-                            </div>
+            <div class="row justify-content-center"> {# Use row and col to structure main content #}
+                <div class="col-12 col-md-8 col-lg-6"> {# Adjusted column size for the content card #}
+                    <div class="card shadow rounded-4 border-0 p-4 p-lg-5"> {# Consistent card styling #}
+                        <div class="text-center mb-4 mt-md-0">
+                            <h1 class="display-2 mb-3">Get in touch today</h1>
+                            <p class="lead">Have a new project in mind? Drop us a line about your project needs, we
+                                answer same day.</p>
                         </div>
-                    </div>
-                    <img src="/static/html/assets/img/contact_us_desc.png">
-                    <form action="/contact" method="POST">
-                        {% csrf_token %}
-                        <div class="form-group mb-4">
-                            <label class="h6" for="exampleInputName1">Your Name</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
+                        <div class="d-flex justify-content-center mb-4"> {# Centering for image #}
+                            <img class="img-fluid" src="/static/html/assets/img/contact_us_desc.png" alt="Contact Us Illustration" style="max-width: 350px; height: auto;">
+                        </div>
+                        <form action="/contact" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group mb-3"> {# Consistent mb-3 for form groups #}
+                                <label class="form-label" for="cname">Your Name</label>
+                                <div class="input-group">
                                     <span class="input-group-text"><span class="far fa-user"></span></span>
+                                    <input type="text" name="cname" class="form-control" id="cname" placeholder="EG. John David" required>
                                 </div>
-                                <input name="cname" class="form-control" placeholder="EG. John David" type="text" required>
                             </div>
-                        </div>
-                        <div class="form-group mb-4">
-                            <label class="h6" for="exampleInputEmail1">Email address</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="cemail">Email address</label>
+                                <div class="input-group">
                                     <span class="input-group-text"><span class="fas fa-at"></span></span>
+                                    <input type="email" name="cemail" class="form-control" id="cemail" placeholder="example@company.com" required>
                                 </div>
-                                <input name="cemail" class="form-control" placeholder="example@company.com" type="email" required>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="h6" for="exampleFormControlTextarea1">Your message</label>
-                            <textarea name="cquery" class="form-control" placeholder="How can we help?" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-block rounded btn-primary mt-5">Send message</button>
-                    </form>
+                            <div class="form-group mb-4"> {# mb-4 for textarea before button #}
+                                <label class="form-label" for="cquery">Your message</label>
+                                <textarea name="cquery" class="form-control" id="cquery" placeholder="How can we help?" rows="4" required></textarea>
+                            </div>
+                            <div class="d-grid"> {# Full width button #}
+                                <button type="submit" class="btn btn-primary btn-lg">Send message</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
+</main>
+{% endblock %} 
+
+{% comment %} {% extends 'layout.html' %}
+{% block page_content  %}
+<main>
+    <section class="d-flex align-items-center my-5 mt-lg-6 mb-lg-5">
+        <div class="container">
+            <div class="row justify-content-center"> {# Use row and col to structure main content #}
+                <div class="col-12 col-md-8 col-lg-6"> {# Adjusted column size for the content card #}
+                    <div class="card shadow rounded-4 border-0 p-4 p-lg-5"> {# Consistent card styling #}
+                        <div class="text-center mb-4 mt-md-0">
+                            <h1 class="display-2 mb-3 text-white">Get in touch today</h1>
+                            <p class="lead text-light-gray">Have a new project in mind? Drop us a line about your project needs, we
+                                answer same day.</p>
+                        </div>
+                        <div class="d-flex justify-content-center mb-4"> {# Centering for image #}
+                            <img class="img-fluid" src="/static/html/assets/img/contact_us_desc.png"  alt="Contact Us Illustration" style="max-width: 350px; height: auto;">
+                        </div>
+                        <form action="/contact" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group mb-3"> {# Consistent mb-3 for form groups #}
+                                <label class="form-label text-white" for="cname">Your Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="far fa-user"></span></span>
+                                    <input type="text" name="cname" class="form-control" id="cname" placeholder="EG. John David" required>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white" for="cemail">Email address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-at"></span></span>
+                                    <input type="email" name="cemail" class="form-control" id="cemail" placeholder="example@company.com" required>
+                                </div>
+                            </div>
+                            <div class="form-group mb-4"> {# mb-4 for textarea before button #}
+                                <label class="form-label text-white" for="cquery">Your message</label>
+                                <textarea name="cquery" class="form-control" id="cquery" placeholder="How can we help?" rows="4" required></textarea>
+                            </div>
+                            <div class="d-grid"> {# Full width button #}
+                                <button type="submit" class="btn btn-primary btn-lg">Send message</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </main>
-{% endblock %}
+{% endblock %} {% endcomment %}

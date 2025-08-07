@@ -1,5 +1,37 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0 p-5">
+            <h3 class="h3 text-center mb-4">Update Notice</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_2jbzmbru.json"
+                    background="transparent" speed="1" style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            <form action="/update-notice/{{noticeObj.id}}/" method="POST">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label class="form-label" for="noticeTitle">Notice Name</label>
+                    <input type="text" name="on_title" class="form-control" id="noticeTitle"
+                        placeholder="Enter Title" value="{{noticeObj.on_title}}" required>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label" for="noticeDesc">Notice Description</label>
+                    <textarea name="on_desc" class="form-control" id="noticeDesc" rows="6"
+                        placeholder="Enter Description" required>{{noticeObj.on_desc}}</textarea>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Update Notice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -37,4 +69,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

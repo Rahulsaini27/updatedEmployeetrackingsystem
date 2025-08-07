@@ -1,6 +1,77 @@
 {% extends 'EmpDashboard.html' %}
 {% block dashboard_content %}
 
+<div class="row justify-content-center pt-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 border-0 p-4">
+            <h3 class="h3 text-center mb-4">View My Leaves</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets2.lottiefiles.com/private_files/lf30_hdiNFs.json" background="transparent" speed="1"
+                    style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            {% if leaves %}
+            <div class="table-responsive">
+                <table id="example" class="table table-hover table-centered table-nowrap mb-0 rounded">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Id</th>
+                            <th scope="col">Leave Reason</th>
+                            <th scope="col">Leave Description</th>
+                            <th scope="col">Leave Start Date</th>
+                            <th scope="col">Number of Days</th>
+                            <th scope="col">Leave Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}
+                        <tr>
+                            <td>{{ leave.id }}</td>
+                            <td>{{leave.l_reason}}</td>
+                            <td>{{leave.l_desc}}</td>
+                            <td>{{leave.l_start_date}}</td>
+                            <td>{{leave.l_no_of_leaves}}</td>
+                            <td>
+                                {% if leave.l_status == 'Approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif leave.l_status == 'Rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center">
+                <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                    background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                </lottie-player>
+                <h3 class="h3 text-center">
+                    No Records Found!
+                </h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+    });
+</script>
+{% endblock %}
+{% comment %} {% extends 'EmpDashboard.html' %}
+{% block dashboard_content %}
+
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -63,4 +134,4 @@
 </script>
 
 
-{% endblock %}
+{% endblock %} {% endcomment %}

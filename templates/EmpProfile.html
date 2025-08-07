@@ -1,74 +1,121 @@
 {% extends 'EmpDashboard.html' %}
 {% block dashboard_content  %}
-<div class="row align-items-center d-flex  justify-content-center">
-    <div class="col-12 mb-4">
-        <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
-            <div class="card-body align-items-center d-flex justify-content-center">
-                <div class="row mb-4">
-                    <div class="col-lg-12 col-sm-16">
-                        <h3 class="h3 text-center">User profile</h3>
-                    </div>
-                    <img src="/static/html/assets/img/undraw_Profile_data_re_v81r.png" width="250px" height="350px">
-
-                    <div class="card-body">
-                        <form action="/create-emp" method="POST">
-                            {% csrf_token %}
-                            <div class="mb-4">
-                                <div class="form-group">
-                                    <label class="h6" for="exampleFormControlTextarea1">Full Name:</label>
-                                    <input type="text" name="e_name" class="form-control" value="{{msg.e_name.upper}}"
-                                        readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="h6" for="exampleFormControlTextarea1">Email Address:</label>
-                                    <input type="email" name="e_email" class="form-control" value="{{msg.e_email}}"
-                                        readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="h6" for="exampleFormControlTextarea1">Contact Number:</label>
-                                    <input type="number" name="e_contact" class="form-control" value="{{msg.e_contact}}"
-                                        readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Choose Gender of
-                                        Employee:</label>
-                                    <input type="text" name="e_gender" class="form-control"
-                                        value="{{msg.e_gender.upper}}" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="h6" for="exampleFormControlTextarea1">Address of Employee</label>
-                                    <textarea name="e_address" class="form-control" rows="6"
-                                        readonly>{{msg.e_address}}</textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Count of Total Number of
-                                        Task:</label>
-                                    <input type="text" class="form-control" value="{{msg1}}" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Count of Total Number of
-                                        Completed Task:</label>
-                                    <input type="text" class="form-control" value="{{msg2}}" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Count of Total Number of
-                                        Pending Task:</label>
-                                    <input type="text" class="form-control" value="{{msg3}}" readonly>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Assigned Projects:</label>
-                                    <ul class="list-group">
-                                        {% for result in msg4 %}
-                                        <li class="list-group-item">{{result.p_name}}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                        </form>
-                    </div>
-                </div>
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0 p-5">
+            <h3 class="h3 text-center mb-4">User profile</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <img class="img-fluid" src="/static/html/assets/img/undraw_Profile_data_re_v81r.png" alt="Profile Data Illustration" style="max-width: 250px; height: auto;">
             </div>
+            <form> {# Changed to simple form as it's for display #}
+                <div class="form-group mb-3">
+                    <label class="form-label">Full Name:</label>
+                    <input type="text" class="form-control" value="{{msg.e_name.upper}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Email Address:</label>
+                    <input type="email" class="form-control" value="{{msg.e_email}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Contact Number:</label>
+                    <input type="number" class="form-control" value="{{msg.e_contact}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Gender:</label>
+                    <input type="text" class="form-control" value="{{msg.e_gender.upper}}" readonly>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">Address:</label>
+                    <textarea class="form-control" rows="4" readonly>{{msg.e_address}}</textarea>
+                </div>
+                
+                <h4 class="h5 mt-4 mb-3">Task Statistics:</h4>
+                <div class="form-group mb-3">
+                    <label class="form-label">Total Tasks:</label>
+                    <input type="text" class="form-control" value="{{msg1}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Completed Tasks:</label>
+                    <input type="text" class="form-control" value="{{msg2}}" readonly>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">Pending Tasks:</label>
+                    <input type="text" class="form-control" value="{{msg3}}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Assigned Projects:</label>
+                    <ul class="list-group list-group-flush border rounded-3"> {# Added border and rounded-3 for list group #}
+                        {% for result in msg4 %}
+                        <li class="list-group-item">{{result.p_name}}</li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No projects assigned.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+{% comment %} {% extends 'EmpDashboard.html' %}
+{% block dashboard_content  %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0 p-5">
+            <h3 class="h3 text-center mb-4 text-white">User profile</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <img class="img-fluid" src="{% static 'html/assets/img/undraw_Profile_data_re_v81r.png' %}" alt="Profile Data Illustration" style="max-width: 250px; height: auto;">
+            </div>
+            <form> {# Changed to simple form as it's for display #}
+                <div class="form-group mb-3">
+                    <label class="form-label text-white">Full Name:</label>
+                    <input type="text" class="form-control" value="{{msg.e_name.upper}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label text-white">Email Address:</label>
+                    <input type="email" class="form-control" value="{{msg.e_email}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label text-white">Contact Number:</label>
+                    <input type="number" class="form-control" value="{{msg.e_contact}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label text-white">Gender:</label>
+                    <input type="text" class="form-control" value="{{msg.e_gender.upper}}" readonly>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label text-white">Address:</label>
+                    <textarea class="form-control" rows="4" readonly>{{msg.e_address}}</textarea>
+                </div>
+
+                <h4 class="h5 mt-4 mb-3 text-white">Task Statistics:</h4>
+                <div class="form-group mb-3">
+                    <label class="form-label text-white">Total Tasks:</label>
+                    <input type="text" class="form-control" value="{{msg1}}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label text-white">Completed Tasks:</label>
+                    <input type="text" class="form-control" value="{{msg2}}" readonly>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label text-white">Pending Tasks:</label>
+                    <input type="text" class="form-control" value="{{msg3}}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label text-white">Assigned Projects:</label>
+                    <ul class="list-group list-group-flush border rounded-3"> {# Added border and rounded-3 for list group #}
+                        {% for result in msg4 %}
+                        <li class="list-group-item bg-transparent text-light-gray">{{result.p_name}}</li>
+                        {% empty %}
+                        <li class="list-group-item text-muted bg-transparent">No projects assigned.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 {% endblock %}
+ {% endcomment %}

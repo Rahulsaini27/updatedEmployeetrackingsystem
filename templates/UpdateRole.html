@@ -1,5 +1,77 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow rounded-4 border-0 p-5">
+            <h3 class="h3 text-center mb-4">Update Tasks</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_2jbzmbru.json"
+                    background="transparent" speed="1" style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            <h4 class="h5 text-center mb-4 text-primary">{{tasks.t_name.upper}}</h4> {# Emphasize task name #}
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="taskName">Task Name</label>
+                        <input type="text" name="t_name" class="form-control" id="taskName"
+                            placeholder="{{tasks.t_name}}" value="{{tasks.t_name}}" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="taskDesc">Task Description</label>
+                        <textarea name="t_desc" class="form-control" id="taskDesc" rows="6" required>{{tasks.t_desc}}</textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="taskPriority">Task Priority</label>
+                        <select name="t_priority" class="form-control" id="taskPriority">
+                            <option value="{{tasks.t_priority}}" selected>{{tasks.t_priority}}</option>
+                            <option value="High Priority">High Priority</option>
+                            <option value="Medium Priority">Medium Priority</option>
+                            <option value="Low Priority">Low Priority</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="deadlineDate">Task Deadline Date</label>
+                        <input type="date" name="t_deadline_date" class="form-control" id="deadlineDate" value="{{tasks.t_deadline_date}}" required>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="employeeAssign">Employee Assign</label>
+                        <select name="e_id" class="form-control" id="employeeAssign">
+                            {% for eob in projects_emp_link %}
+                            <option value={{eob.e_id_id}} {% if eob.e_id_id == tasks.e_id.id %}selected{% endif %}>{{eob.e_id.e_name.upper}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Update Task</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1; 
+        var yyyy = today.getFullYear();
+
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+
+        today = yyyy + '-' + mm + '-' + dd;
+        document.getElementById("deadlineDate").setAttribute("min", today);
+</script>
+{% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
 {% load custom_perms %} {# Add this line #}
 
 <div class="row">
@@ -50,4 +122,4 @@
     </div>
 </div>
 
-{% endblock %}
+{% endblock %} {% endcomment %}

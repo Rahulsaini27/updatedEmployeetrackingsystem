@@ -1,6 +1,70 @@
 {% extends 'OrgDashboard.html' %}
 {% block dashboard_content %}
 {% load custom_perms %} {# Add this line #}
+<div class="row justify-content-center pt-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow rounded-4 border-0 p-4">
+            <h3 class="h3 text-center mb-4">View & Edit Tasks</h3>
+            <div class="d-flex justify-content-center mb-4">
+                <lottie-player src="https://assets6.lottiefiles.com/packages/lf20_ikfeh6cd.json" background="transparent" speed="1"
+                    style="width: 300px; height: 250px;" loop autoplay>
+                </lottie-player>
+            </div>
+            <div class="row"> {# Wrap task cards in a row #}
+                {% for board in board_details %}
+                {% for task in board.boardids.all %}
+                <div class="col-12 col-md-6 col-lg-4 mb-4"> {# Responsive column sizing #}
+                    <div class="card shadow-sm rounded-3 p-4"> {# Consistent card styling for each task #}
+                        <h4 class="h5 fw-bold text-primary mb-2">TASK: {{task.t_name|upper}}</h4>
+                        <p class="text-muted small mb-3">{{task.t_desc}}</p>
+
+                        <ul class="list-unstyled mb-3">
+                            <li class="mb-1"><strong>Project:</strong> <span class="fw-normal">{{task.p_id.p_name|upper}}</span></li>
+                            <li class="mb-1"><strong>Board:</strong> <span class="fw-normal">{{task.b_id.b_name|upper}}</span></li>
+                            <li class="mb-1"><strong>Assigned:</strong> <span class="fw-normal">{{task.e_id.e_name|upper}}</span></li>
+                            <li class="mb-1">
+                                <strong>Priority:</strong>
+                                {% if task.t_priority == "High Priority" %}
+                                <span class="badge bg-danger">High</span>
+                                {% elif task.t_priority == "Medium Priority" %}
+                                <span class="badge bg-warning">Medium</span>
+                                {% elif task.t_priority == "Low Priority" %}
+                                <span class="badge bg-info">Low</span>
+                                {% endif %}
+                            </li>
+                            <li class="mb-1"><strong>Assigned Date:</strong> <span class="fw-normal">{{task.t_assign_date}}</span></li>
+                            <li><strong>Deadline Date:</strong> <span class="fw-normal">{{ task.t_deadline_date}}</span></li>
+                        </ul>
+                        <div class="d-flex flex-wrap gap-2 mt-3"> {# Flexbox for buttons with spacing #}
+                            {% if request.custom_user|has_perm:'update_task' %} {# <-- This permission check #}
+                            <a href="/update-task/{{task.id}}" class="btn btn-warning btn-sm">UPDATE</a>
+                            {% endif %}
+                            {% if request.custom_user|has_perm:'delete_task' %} {# <-- This permission check #}
+                            <a href="/delete-task/{{task.id}}" class="btn btn-danger btn-sm">DELETE</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+            {% if not board_details %} {# Show "No Records Found" if no boards or tasks #}
+            <div class="text-center">
+                <lottie-player src="https://assets7.lottiefiles.com/datafiles/vhvOcuUkH41HdrL/data.json"
+                    background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay>
+                </lottie-player>
+                <h3 class="h3 text-center">
+                    No Records Found!
+                </h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% comment %} {% extends 'OrgDashboard.html' %}
+{% block dashboard_content %}
+{% load custom_perms %} {# Add this line #}
 <div class="row align-items-center d-flex  justify-content-center">
     <div class="col-12 mb-4">
         <div class="card border-light shadow-sm components-section align-items-center d-flex  justify-content-center">
@@ -68,4 +132,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

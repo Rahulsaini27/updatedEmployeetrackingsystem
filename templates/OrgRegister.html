@@ -106,4 +106,115 @@
         </div>
     </section>
 </main>
-{% endblock %}
+{% endblock %} 
+{% comment %} {% extends 'layout.html' %}
+{% block page_content  %}
+<main>
+    <section class="d-flex align-items-center my-5 mt-lg-6 mb-lg-5">
+        <div class="container">
+            <div class="col-12 d-flex align-items-center justify-content-center">
+                <div class="card shadow rounded-4 border-0 p-4 p-lg-5 w-100 fmxw-500"> {# Applied card styling #}
+                    <div class="text-center text-md-center mb-4 mt-md-0">
+                        <h1 class="mb-0 h3 text-white">Create an your Organization Account</h1>
+                    </div>
+                    <div class="d-flex justify-content-center mb-4"> {# Centering image #}
+                        <img src="{% static 'html/assets/img/personal_information.png' %}" alt="Personal Information Illustration" style="max-width: 250px; height: auto;">
+                    </div>
+                    <form method="POST" action="/SignUpOrg" class="mt-4" autocomplete="off">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="form-group mb-4">
+                                <label class="text-white form-label">Organization/Company Name</label> {# Added form-label #}
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-building"></span></span>
+                                    <input type="text" name="org_name" class="form-control"
+                                        placeholder="Example Private Limited." id="org_name" autofocus required>
+                                </div>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label for="email" class="text-white form-label">Email</label> {# Added form-label #}
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-envelope"></span></span>
+                                    <input type="email" name="o_email" class="form-control"
+                                        placeholder="example@company.com" id="email" autofocus required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group mb-4">
+                                <label for="password" class="text-white form-label">Your Password</label> {# Added form-label #}
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-lock"></span></span>
+                                    <input type="password" name="password1" placeholder="Password" class="form-control"
+                                        id="password" required>
+                                </div>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label for="confirm_password" class="text-white form-label">Confirm Password</label> {# Added form-label #}
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-lock"></span></span>
+                                    <input type="password" name="password2" placeholder="Confirm Password"
+                                        class="form-control" id="confirm_password" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group mb-4">
+                                <label class="text-white form-label">Contact Number</label> {# Added form-label #}
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-mobile-alt"></span></span>
+                                    <input type="number" name="contact_no" placeholder="Contact Number"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="text-white form-label">Website</label> {# Added form-label #}
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-globe"></span></span>
+                                    <input type="url" name="website" placeholder="www.example.com" class="form-control"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group mb-4">
+                                <label class="text-white form-label">Address</label> {# Added form-label #}
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="fas fa-address-card"></span></span>
+                                    <textarea type="text" name="o_address" placeholder="Enter Your Address"
+                                        class="form-control" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="remember" required>
+                                <label class="form-check-label fw-normal mb-0 text-light-gray" for="remember">
+                                    I agree to the <a href="#" class="fw-bold text-primary">terms and conditions</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Sign up</button> {# Larger button #}
+                        </div>
+                    </form>
+
+                    <div class="d-flex justify-content-center align-items-center mt-4">
+                        <span class="fw-normal text-light-gray">
+                            Already have an account?
+                            <a href="/LoginOrg" class="fw-bold text-primary">Login here</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+</main>
+{% endblock %} {% endcomment %}
