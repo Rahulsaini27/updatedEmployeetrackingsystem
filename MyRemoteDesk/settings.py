@@ -89,24 +89,13 @@ WSGI_APPLICATION = 'MyRemoteDesk.wsgi.application'
 
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'requin_solution_db',     # ✅ New DB
-#         'USER': 'requin_user',            # ✅ New user
-#         'PASSWORD': 'Requin@123',         # ✅ New password
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'updatedemployeetracker_db',   # ✅ Your DB name
-        'USER': 'django_user',                 # ✅ Your MySQL user
-        'PASSWORD': 'your_strong_db_password_for_django',  # 🔐 Replace with your actual password
-        'HOST': '65.0.93.143',                   # or '127.0.0.1' if Django is on the same server
+        'NAME': 'updatedemployeetracker_db',
+        'USER': 'django_user',
+        'PASSWORD': 'StrongPassword123',  # jo aapne step 2 me banaya
+        'HOST': 'localhost',  # Agar Django same server pe hai to 'localhost'
         'PORT': '3306',
     }
 }
